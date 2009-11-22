@@ -13,3 +13,6 @@ Objectives
 T10.cpp  
 score:4028 
 Elapsed Time:6:03
+
+TODO: command center should be moved nearer to minerals when game start.
+and other changes to reduce completion time.
