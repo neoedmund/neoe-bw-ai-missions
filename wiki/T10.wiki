@@ -10,9 +10,11 @@ Objectives
 
 
 = Details =
-T10.cpp  
+[http://code.google.com/p/neoe-bw-ai-missions/source/browse/trunk/ExampleAIModule/ExampleAIModule/T10.cpp?spec=svn4&r=4 T10.cpp]  
 score:4028 
 Elapsed Time:6:03
 
-TODO: command center should be moved nearer to minerals when game start.
+this is a first "boot camp" also for my code, complete the mission is okay.
+
+more perfect todo: command center should be moved nearer to minerals when game start.
 and other changes to reduce completion time.
