@@ -1,0 +1,15 @@
+#Episode I Tutorial: Boot Camp
+
+= Introduction =
+
+Name: Tutorial: Boot Camp
+Objectives
+- build 3 supply depots
+- build a refinery
+- gather 100 vespene gas
+
+
+= Details =
+T10.cpp  
+score:4028 
+Elapsed Time:6:03
