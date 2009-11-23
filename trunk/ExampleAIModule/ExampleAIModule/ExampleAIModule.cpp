@@ -1,5 +1,5 @@
 #include "ExampleAIModule.h"
-#include "T10.h"
+#include "T11.h"
 
 using namespace BWAPI;
 
@@ -9,7 +9,8 @@ void ExampleAIModule::onFrame()
 	if (Broodwar->isReplay())
 		return;
 	//sampleCode();
-	T10();
+	drawStats();
+	T11();
 }
 
 void ExampleAIModule::onStart()
@@ -239,7 +240,7 @@ DWORD WINAPI AnalyzeThread()
 void ExampleAIModule::drawStats()
 {
 	std::set<Unit*> myUnits = Broodwar->self()->getUnits();
-	Broodwar->drawTextScreen(5,0,"I have %d units:",myUnits.size());
+	Broodwar->drawTextScreen(5,32,"I have %d units:",myUnits.size());
 	std::map<UnitType, int> unitTypeCounts;
 	for(std::set<Unit*>::iterator i=myUnits.begin();i!=myUnits.end();i++)
 	{
@@ -249,7 +250,7 @@ void ExampleAIModule::drawStats()
 		}
 		unitTypeCounts.find((*i)->getType())->second++;
 	}
-	int line=1;
+	int line=3;
 	for(std::map<UnitType,int>::iterator i=unitTypeCounts.begin();i!=unitTypeCounts.end();i++)
 	{
 		Broodwar->drawTextScreen(5,16*line,"- %d %ss",(*i).second, (*i).first.getName().c_str());

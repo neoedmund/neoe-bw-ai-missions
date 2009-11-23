@@ -2,13 +2,14 @@
 #include <BWAPI.h>
 
 void T10();
-BWAPI::Unit* getCommandCenter();
-int getSCVCnt();
-int getMineralCnt();
-void makeIdelWork();
-BWAPI::Unit* getNextMineral();
-void buildDepot();
-bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) ;
-BWAPI::TilePosition getBuildDepotLoc();
-bool visible(BWAPI::TilePosition p, int width, int height);
-BWAPI::TilePosition getGasLoc();
+static BWAPI::Unit* getCommandCenter();
+static int getSCVCnt();
+static int getMineralCnt();
+static void makeIdelWork();
+static BWAPI::Unit* getNextMineral();
+static void buildDepot();
+static bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) ;
+static BWAPI::TilePosition getBuildDepotLoc();
+static bool visible(BWAPI::TilePosition p, int width, int height);
+static BWAPI::TilePosition getGasLoc();
+static BWAPI::Unit* getRefinery();
