@@ -14,7 +14,7 @@ Terran Campaign: Episode I
 
 
 
-   1. Terran mission 1: Wasteland
+   1. Terran mission 1: Wasteland *Completed* [T11]
 
    2. Terran mission 2: Backwater Station
 
@@ -159,7 +159,5 @@ Zerg Campaign: Episode VI
   10. Secret mission: Dark Origin
 
   11. Zerg Mission 10: Omega 
-
-
 
 
