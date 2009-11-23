@@ -16,6 +16,8 @@ T11.cpp
 
 Elapsed Time:3:51
 
+devided into 4 steps:
+1 "goto base", 2 "build barrack", 3 "train marines", 4 "finish"
 
 more perfect todo: do something when unexpected attacked.
 
