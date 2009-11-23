@@ -1,0 +1,24 @@
+#Episode I Tutorial: Boot Camp
+
+== Introduction ==
+
+Episode I Terran: 1 Wasteland
+
+Objectives
+
+- find Raynor
+
+- build a barracks
+
+- train 10 marines
+
+== Details ==
+
+T11.cpp 
+
+Elapsed Time:3:51
+
+
+more perfect todo: do something when unexpected attacked.
+
+[http://neoe-bw-ai-missions.googlecode.com/files/0055%20neoeT%20KelMoriT%20CompZ.rep replay] 
