@@ -18,6 +18,8 @@ using namespace BWAPI;
 static int mineralCnt=0;
 static int step=0;
 static float scvPerMin=2.1f;
+static int gasWorkerCnt=0;
+static int maxGasWorker=3;
 
 void T10(){
 	// T 1 1
@@ -43,44 +45,49 @@ void T10(){
 		}
 
 		if (me->minerals()>=100){
-		UnitType type= UnitTypes::Terran_Refinery;
-		BWAPI::TilePosition p=getGasLoc();
-		if (p==BWAPI::TilePosition(-1,-1)){
-			step=2;
-		}else{
+			UnitType type= UnitTypes::Terran_Refinery;
+			BWAPI::TilePosition p=getGasLoc();
+			if (p==BWAPI::TilePosition(-1,-1)){
+				gasWorkerCnt=1;
+				step=2;
+			}else{
+				for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+				{
+					if ( (*i)->getType().isWorker() ){
+						if (!visible(p,type.tileWidth(), type.tileHeight())) (*i)->rightClick(Position(p.x()*32,p.y()*32));
+						else (*i)->build(Position(p.x()*32,p.y()*32),type);
+						break;
+					}
+				}
+			}
+		}
+	}else if (step==1){//build refinery
+
+
+	}else if (step==2){
+		BWAPI::Unit* refinery=getRefinery();
+		if (refinery!=NULL){
+
 			for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 			{
 				if ( (*i)->getType().isWorker() ){
-					if (!visible(p,type.tileWidth(), type.tileHeight())) (*i)->rightClick(Position(p.x()*32,p.y()*32));
-					else (*i)->build(Position(p.x()*32,p.y()*32),type);
-					break;
-				}
-			}
-		}
-		}
-	}else if (step==1){//build refinery
-		
 
-	}else if (step==2){
-		BWAPI::TilePosition p=getGasLoc();
-		int cnt=0;
-		int maxGasWorker=3;
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-		{
-			if ( (*i)->getType().isWorker() ){
-				(*i)->rightClick(Position(p.x()*32,p.y()*32));
-				cnt++;
-				if (cnt>=maxGasWorker){
-					break;
+					Broodwar->printf("assign more gas worker %d",gasWorkerCnt);
+					(*i)->rightClick(refinery);
+					gasWorkerCnt++;
+					if (gasWorkerCnt>=maxGasWorker){
+						step=3;
+						break;
+					}
 				}
 			}
 		}
-		step=3;
+
 	}else{
 	}
 	makeIdelWork();
 }
-BWAPI::TilePosition getGasLoc(){
+static BWAPI::TilePosition getGasLoc(){
 	for(std::set<Unit*>::iterator i=Broodwar->getGeysers().begin();i!=Broodwar->getGeysers().end();i++)
 	{
 		BWAPI::TilePosition p=(*i)->getTilePosition();
@@ -94,7 +101,15 @@ BWAPI::TilePosition getGasLoc(){
 	}
 	return BWAPI::TilePosition(-1,-1);
 }
-void buildDepot(){
+static BWAPI::Unit* getRefinery(){
+	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	{
+		if ((*i)->getType()==UnitTypes::Terran_Refinery&&(*i)->isCompleted())
+			return (*i);
+	}
+	return NULL;
+}
+static void buildDepot(){
 	BWAPI::TilePosition p=getBuildDepotLoc();
 	UnitType type= UnitTypes::Terran_Supply_Depot;
 
@@ -112,7 +127,7 @@ void buildDepot(){
 		}
 	}
 }
-bool visible(BWAPI::TilePosition p, int width, int height){
+static bool visible(BWAPI::TilePosition p, int width, int height){
 	for (int x=p.x();x<=p.x()+width;x++){
 		for (int y=p.y();y<=p.y()+height;y++){
 			if (!Broodwar->visible(x,y)){
@@ -124,7 +139,7 @@ bool visible(BWAPI::TilePosition p, int width, int height){
 	return true;
 }
 
-BWAPI::TilePosition getBuildDepotLoc()
+static BWAPI::TilePosition getBuildDepotLoc()
 {
 	int space=5;
 	UnitType type= UnitTypes::Terran_Supply_Depot;
@@ -147,14 +162,14 @@ BWAPI::TilePosition getBuildDepotLoc()
 	return BWAPI::TilePosition(-1,-1);
 }
 
-bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) 
+static bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) 
 {
 	return Broodwar->canBuildHere(NULL, position, type);
 
 }
 
 
-void makeIdelWork(){
+static void makeIdelWork(){
 	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
 		Unit* mineral = getNextMineral();
@@ -183,7 +198,7 @@ BWAPI::Unit* getCommandCenter(){
 	}
 	return NULL;
 }
-int getSCVCnt(){
+static int getSCVCnt(){
 	int cnt=0;
 	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
 	{
@@ -193,7 +208,7 @@ int getSCVCnt(){
 	}
 	return cnt;
 }
-int getMineralCnt(){
+static int getMineralCnt(){
 	int cnt=0;
 	for(std::set<Unit*>::iterator i=Broodwar->getAllUnits().begin();i!=Broodwar->getAllUnits().end();i++)
 	{

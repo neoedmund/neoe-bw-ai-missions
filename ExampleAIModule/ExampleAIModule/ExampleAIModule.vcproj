@@ -178,6 +178,14 @@
 				RelativePath=".\T10.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\T11.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\utils.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -190,6 +198,14 @@
 			</File>
 			<File
 				RelativePath=".\T10.h"
+				>
+			</File>
+			<File
+				RelativePath=".\T11.h"
+				>
+			</File>
+			<File
+				RelativePath=".\utils.h"
 				>
 			</File>
 		</Filter>
