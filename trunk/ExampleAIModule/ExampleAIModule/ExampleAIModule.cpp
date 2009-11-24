@@ -1,5 +1,6 @@
 #include "ExampleAIModule.h"
-#include "T11.h"
+#include "utils.h"
+#include <BWAPI.h>
 
 using namespace BWAPI;
 
@@ -8,34 +9,39 @@ void ExampleAIModule::onFrame()
 {
 	if (Broodwar->isReplay())
 		return;
-	//sampleCode();
 	drawStats();
-	T11();
+	mapfunc();
+}
+
+static void noaction(){}
+
+#define _MF(a,b) if (strcmp(Broodwar->mapName().c_str(),a)==0) {mapfunc = b;return;}
+
+void ExampleAIModule::setMapFunc(){
+	_MF("Terran Tutorial",T10);
+	_MF("T1) Wasteland",T11);
+	_MF("T2) Backwater Station",T12);
+	//_MF("T3) Desperate Alliance",T13);
+	Broodwar->printf("mapfunc not found!");
+	mapfunc=noaction;
 }
 
 void ExampleAIModule::onStart()
 {
 	Broodwar->sendText("Hello world! neoe");
-	Broodwar->printf("The map is %s, a %d player map",Broodwar->mapName().c_str(),Broodwar->getStartLocations().size());
+
+	Broodwar->printf("The map is %s, a %d player map",
+		Broodwar->mapName().c_str(),Broodwar->getStartLocations().size());
+
+	setMapFunc();
+
 	// Enable some cheat flags
 	Broodwar->enableFlag(Flag::UserInput);
 	// Uncomment to enable complete map information
 	//Broodwar->enableFlag(Flag::CompleteMapInformation);
 
-	//read map information into BWTA so terrain analysis can be done in another thread
-	BWTA::readMap();
-	analyzed=false;
-	analysis_just_finished=false;
-
 	if (Broodwar->isReplay())
 	{
-		for(std::set<Unit*>::iterator i=Broodwar->getAllUnits().begin();i!=Broodwar->getAllUnits().end();i++)
-		{
-			if ((*i)->getType().isBuilding())
-			{
-				this->buildings.insert(std::make_pair(*i,(*i)->getType()));
-			}
-		}
 		Broodwar->printf("The following players are in this replay:");
 		for(std::set<Player*>::iterator p=Broodwar->getPlayers().begin();p!=Broodwar->getPlayers().end();p++)
 		{
@@ -55,98 +61,6 @@ void ExampleAIModule::onStart()
 }
 
 
-void ExampleAIModule::sampleCode(){
-	drawStats();
-	if (analyzed && Broodwar->getFrameCount()%30==0)
-	{
-		//order one of our workers to guard our chokepoint.
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
-		{
-			if ((*i)->getType().isWorker())
-			{
-				//get the chokepoints linked to our home region
-				std::set<BWTA::Chokepoint*> chokepoints= home->getChokepoints();
-				double min_length=10000;
-				BWTA::Chokepoint* choke=NULL;
-
-				//iterate through all chokepoints and look for the one with the smallest gap (least width)
-				for(std::set<BWTA::Chokepoint*>::iterator c=chokepoints.begin();c!=chokepoints.end();c++)
-				{
-					double length=(*c)->getWidth();
-					if (length<min_length || choke==NULL)
-					{
-						min_length=length;
-						choke=*c;
-					}
-				}
-
-				//order the worker to move to the center of the gap
-				(*i)->rightClick(choke->getCenter());
-				break;
-			}
-		}
-	}
-	if (analyzed)
-	{
-		//we will iterate through all the base locations, and draw their outlines.
-		for(std::set<BWTA::BaseLocation*>::const_iterator i=BWTA::getBaseLocations().begin();i!=BWTA::getBaseLocations().end();i++)
-		{
-			TilePosition p=(*i)->getTilePosition();
-			Position c=(*i)->getPosition();
-
-			//draw outline of center location
-			Broodwar->drawBox(CoordinateType::Map,p.x()*32,p.y()*32,p.x()*32+4*32,p.y()*32+3*32,Colors::Blue,false);
-
-			//draw a circle at each mineral patch
-			for(std::set<BWAPI::Unit*>::const_iterator j=(*i)->getStaticMinerals().begin();j!=(*i)->getStaticMinerals().end();j++)
-			{
-				Position q=(*j)->getInitialPosition();
-				Broodwar->drawCircle(CoordinateType::Map,q.x(),q.y(),30,Colors::Cyan,false);
-			}
-
-			//draw the outlines of vespene geysers
-			for(std::set<BWAPI::Unit*>::const_iterator j=(*i)->getGeysers().begin();j!=(*i)->getGeysers().end();j++)
-			{
-				TilePosition q=(*j)->getInitialTilePosition();
-				Broodwar->drawBox(CoordinateType::Map,q.x()*32,q.y()*32,q.x()*32+4*32,q.y()*32+2*32,Colors::Orange,false);
-			}
-
-			//if this is an island expansion, draw a yellow circle around the base location
-			if ((*i)->isIsland())
-			{
-				Broodwar->drawCircle(CoordinateType::Map,c.x(),c.y(),80,Colors::Yellow,false);
-			}
-		}
-
-		//we will iterate through all the regions and draw the polygon outline of it in green.
-		for(std::set<BWTA::Region*>::const_iterator r=BWTA::getRegions().begin();r!=BWTA::getRegions().end();r++)
-		{
-			BWTA::Polygon p=(*r)->getPolygon();
-			for(int j=0;j<(int)p.size();j++)
-			{
-				Position point1=p[j];
-				Position point2=p[(j+1) % p.size()];
-				Broodwar->drawLine(CoordinateType::Map,point1.x(),point1.y(),point2.x(),point2.y(),Colors::Green);
-			}
-		}
-
-		//we will visualize the chokepoints with red lines
-		for(std::set<BWTA::Region*>::const_iterator r=BWTA::getRegions().begin();r!=BWTA::getRegions().end();r++)
-		{
-			for(std::set<BWTA::Chokepoint*>::const_iterator c=(*r)->getChokepoints().begin();c!=(*r)->getChokepoints().end();c++)
-			{
-				Position point1=(*c)->getSides().first;
-				Position point2=(*c)->getSides().second;
-				Broodwar->drawLine(CoordinateType::Map,point1.x(),point1.y(),point2.x(),point2.y(),Colors::Red);
-			}
-		}
-	}
-	if (analysis_just_finished)
-	{
-		Broodwar->printf("Finished analyzing map.");
-		analysis_just_finished=false;
-	}
-}
 
 void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 {
@@ -190,7 +104,8 @@ void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 void ExampleAIModule::onUnitShow(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] has been spotted at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A [%s]%s [%x] has been spotted at (%d,%d)",unit->getPlayer()->getName().c_str(),
+			unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 }
 void ExampleAIModule::onUnitHide(BWAPI::Unit* unit)
 {
@@ -208,33 +123,11 @@ bool ExampleAIModule::onSendText(std::string text)
 	{
 		showForces();
 		return false;
-	} else if (text=="/analyze")
-	{
-		if (analyzed == false)
-		{
-			Broodwar->printf("Analyzing map... this may take a minute");
-			CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AnalyzeThread, NULL, 0, NULL);
-		}
-		return false;
-	} else
+	}  else
 	{
 		Broodwar->printf("You typed '%s'!",text.c_str());
 	}
 	return true;
-}
-
-DWORD WINAPI AnalyzeThread()
-{
-	BWTA::analyze();
-	analyzed   = true;
-	analysis_just_finished = true;
-	home       = BWTA::getStartLocation(BWAPI::Broodwar->self())->getRegion();
-	//enemy start location only available if Complete Map Information is enabled.
-	if (BWTA::getStartLocation(BWAPI::Broodwar->enemy())!=NULL)
-	{
-		enemy_base = BWTA::getStartLocation(BWAPI::Broodwar->enemy())->getRegion();
-	}
-	return 0;
 }
 
 void ExampleAIModule::drawStats()

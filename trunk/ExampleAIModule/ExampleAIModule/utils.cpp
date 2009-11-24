@@ -5,6 +5,7 @@ using namespace BWAPI;
 Unit* Util1::commandCenter = NULL;
 double Util1::svcPerMineral = 2.1;
 double Util1::nearMineralDis = 500;
+//Util::Logger* Util1::log = new Util::FileLogger("neoe-ai", Util::LogLevel::MicroDetailed);
 
 Unit* Util1::getMyUnit(UnitType type){
 	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
