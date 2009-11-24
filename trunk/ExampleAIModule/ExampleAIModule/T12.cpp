@@ -33,21 +33,42 @@ void T12(){
 }
 
 static void step0(){
-	Broodwar->enableFlag(Flag::CompleteMapInformation);
 	Broodwar->printf("units dump begin");
 	for each(Unit* u in Broodwar->getAllUnits()){
-		Broodwar->printf("[%s]%s", u->getPlayer()->getName().c_str() ,
-			u->getType().getName().c_str());
+		Broodwar->printf("[%s]%s(%d)", u->getPlayer()->getName().c_str() ,
+			u->getType().getName().c_str(),
+			u->getType().getID());
 	}
 	Broodwar->printf("units dump end");
-	Broodwar->enableFlag(Flag::CompleteMapInformation);
 	step=1;
 }
-static void step1(){
 
+static void step1(){
+	//[Antiga]Terran Command Center [57e07c0] has been spotted at (224,144)
+	Unit* raynor=NULL;
+	for each(Unit* u in Broodwar->self()->getUnits()){
+		if (u->getType().getID()==229) raynor = u;
+	}
+	Position ATCC = Position(224,144);
+	if (raynor) {
+		if (raynor->getOrder()==Orders::PlayerGuard) {
+			raynor->rightClick(ATCC);
+			Broodwar->printf("Raynor Go.");
+		}
+		double dis = raynor->getDistance(ATCC);
+		//Broodwar->printf("distance %.1f", dis);
+		if (dis<100) step=2;
+	}
 }
 static void step2(){
-
+	Broodwar->printf("enemy units dump begin");
+	for each(Unit* u in Broodwar->enemy()->getUnits()){
+		Broodwar->printf("[%s]%s(%d)", u->getPlayer()->getName().c_str() ,
+			u->getType().getName().c_str(),
+			u->getType().getID());
+	}
+	Broodwar->printf("units dump end");
+	step=3;
 }
 static void step3(){}
 static void step4(){}
