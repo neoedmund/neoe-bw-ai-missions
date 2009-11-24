@@ -104,8 +104,11 @@ void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 void ExampleAIModule::onUnitShow(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A [%s]%s [%x] has been spotted at (%d,%d)",unit->getPlayer()->getName().c_str(),
-			unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A [%s]%s(%d) [%x] has been spotted at (%d,%d)",
+			unit->getPlayer()->getName().c_str(),
+			unit->getType().getName().c_str(),
+			unit->getType().getID(),
+			unit,unit->getPosition().x(),unit->getPosition().y());
 }
 void ExampleAIModule::onUnitHide(BWAPI::Unit* unit)
 {
@@ -115,6 +118,7 @@ void ExampleAIModule::onUnitHide(BWAPI::Unit* unit)
 
 bool ExampleAIModule::onSendText(std::string text)
 {
+	//if (text=="go") {return false;}
 	if (text=="/show players")
 	{
 		showPlayers();

@@ -1,2 +1,1 @@
-copy Release\*.dll D:\neo\StarCraft\bwapi-data\AI\
-pause
+copy C:\long\oss\scbw\neoe-bw-ai-missions\ExampleAIModule\Release\*.dll C:\long\StarCraft\bwapi-data\AI\
