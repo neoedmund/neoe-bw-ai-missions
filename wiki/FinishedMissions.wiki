@@ -1,7 +1,7 @@
 #summary Finished missions
 ||  || || Terran Campaign:   Episode I || || ||
-||  ||  * Tutorial: ||  Boot Camp   || *Completed*    || [T10] ||
-||  1. ||  Terran mission 1: ||  Wasteland   ||*Completed* || [T11]  ||
+||  ||   Tutorial: ||  Boot Camp   || *Completed*    || [T10] ||
+||  1. ||  Terran mission 1: ||  Wasteland   || *Completed* || [T11]  ||
 ||  2. ||  Terran mission 2: ||  Backwater Station  || *under siege* || [T12]    ||
 ||  3. ||  Terran mission 3: ||  Desperate Alliance                      || || ||
 ||  4. ||  Terran mission 4: ||  The Jacobs Installation                 || || ||
