@@ -1,13 +1,5 @@
 #pragma once
 #include <BWAPI.h>
-#include <BWTA.h>
-#include <windows.h>
-
-static bool analyzed;
-static bool analysis_just_finished;
-static BWTA::Region* home;
-static BWTA::Region* enemy_base;
-DWORD WINAPI AnalyzeThread();
 
 class ExampleAIModule : public BWAPI::AIModule
 {
@@ -20,11 +12,22 @@ public:
 	virtual void onUnitMorph(BWAPI::Unit* unit);
 	virtual void onUnitShow(BWAPI::Unit* unit);
 	virtual void onUnitHide(BWAPI::Unit* unit);
-	void drawStats(); //not part of BWAPI::AIModule
+
+	void drawStats(); 
 	void showPlayers();
 	void showForces();
-	std::map<BWAPI::Unit*,BWAPI::UnitType> buildings;
-private :
-	void sampleCode();
+
+	
+	virtual void onEnd(bool isWinner){};
+	virtual void onPlayerLeft(BWAPI::Player* player){};
+	virtual void onNukeDetect(BWAPI::Position target){};
+	virtual void onUnitRenegade(BWAPI::Unit* unit){};
+
+	void (*mapfunc) ();
+	void setMapFunc();
 
 };
+
+void T10();
+void T11();
+void T12();

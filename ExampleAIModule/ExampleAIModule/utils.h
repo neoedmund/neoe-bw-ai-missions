@@ -9,12 +9,6 @@ public:
 	static Unit* getMyUnit(UnitType type);
 	static std::set<Unit*> getMyUnits(UnitType type);
 	static Unit* getNearestMineral(Unit* center);
-	static void foreach(std::set<Unit*> units, void (*f)(Unit* u)){
-		for (std::set<Unit*>::iterator i=units.begin();i!=units.end();i++)
-		{
-			f(*i);
-		}
-	}
 	static void trainEnoughSVC();
 	static void buildEnoughSupplyDepot();
 

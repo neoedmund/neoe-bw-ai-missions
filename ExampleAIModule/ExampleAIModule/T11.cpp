@@ -9,12 +9,20 @@ Objectives
 @auther neoe
 @bwapi beta 2.2
 */
-
+#include <BWAPI.h>
 #include "utils.h"
-#include "T11.h"
 #include <string>
 
 using namespace BWAPI;
+
+static void step0();
+static void step1();
+static void step2();
+static void step3();
+static void makeIdelWork();
+static void moveMarine();
+static BWAPI::Unit* getNextMineral();
+
 
 static const char* data[4] = {"goto base","build barrack", "train marines", "finish"};
 static int step = 0;
