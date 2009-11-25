@@ -1,0 +1,18 @@
+#summary Terran mission 2: Backwater Station
+
+= Introduction =
+
+- Eradicate the alien infestation.
+- Raynor must servive
+
+
+= Details =
+
+complete in 9:52. 
+
+the army explores and find the boss spot.(since the original AI cannot find a way to it without exploration).
+
+TODO: the army is a little foolish because cannot avoid must-loose micro battles.
+and micro operation is not good.
+
+[http://neoe-bw-ai-missions.googlecode.com/files/0029%20neoeT%20Kel-T%20AntiT%20ComZ.rep replay]
