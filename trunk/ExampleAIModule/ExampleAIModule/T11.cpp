@@ -44,8 +44,9 @@ static void step0(){
 	moveMarine();
 	Util1::buildEnoughSupplyDepot();
 	Util1::trainEnoughSVC();	
-	int mineralCnt = Util1::getMineralNearCenter(Util1::getCommandCenter(),Util1::nearMineralDis).size();
-	int svcCnt = Util1::getMyUnits(UnitTypes::Terran_SCV).size();
+	size_t mineralCnt = Util1::getUnitsNearCenter(Util1::getCommandCenter(),Util1::nearMineralDis,
+		UnitTypes::Resource_Mineral_Field, Broodwar->getAllUnits()).size();
+	size_t svcCnt = Util1::getMyUnits(UnitTypes::Terran_SCV).size();
 	if (mineralCnt*Util1::svcPerMineral<=svcCnt)	{
 		step=1;
 	}
