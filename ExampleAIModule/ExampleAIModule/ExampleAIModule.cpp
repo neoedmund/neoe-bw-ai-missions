@@ -65,7 +65,7 @@ void ExampleAIModule::onStart()
 void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] has been created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A %s [%x] created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 	else
 	{
 		/*if we are in a replay, then we will print out the build order
@@ -82,12 +82,12 @@ void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
 void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] has been destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A %s [%x] destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 }
 void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] has been morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A %s [%x] morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 	else
 	{
 		/*if we are in a replay, then we will print out the build order
@@ -104,7 +104,7 @@ void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
 void ExampleAIModule::onUnitShow(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
-		Broodwar->printf("A [%s]%s(%d) [%x] has been spotted at (%d,%d)",
+		Broodwar->printf("A [%s]%s(%d) [%x] spotted at (%d,%d)",
 			unit->getPlayer()->getName().c_str(),
 			unit->getType().getName().c_str(),
 			unit->getType().getID(),
@@ -115,10 +115,10 @@ void ExampleAIModule::onUnitHide(BWAPI::Unit* unit)
 	if (!Broodwar->isReplay())
 		Broodwar->printf("A %s [%x] was last seen at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 }
-
+void dumpEnemy();
 bool ExampleAIModule::onSendText(std::string text)
 {
-	//if (text=="go") {return false;}
+	if (text=="dumpEnemy") {dumpEnemy();return false;}
 	if (text=="/show players")
 	{
 		showPlayers();
