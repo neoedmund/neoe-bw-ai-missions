@@ -3,7 +3,7 @@
 ||  ||   Tutorial: ||  Boot Camp   || *Completed*    || [T10] ||
 ||  1. ||  Terran mission 1: ||  Wasteland   || *Completed* || [T11]  ||
 ||  2. ||  Terran mission 2: ||  Backwater Station  || *Completed* || [T12]    ||
-||  3. ||  Terran mission 3: ||  Desperate Alliance                      || || ||
+||  3. ||  Terran mission 3: ||  Desperate Alliance  || *Completed* || [T13]    ||
 ||  4. ||  Terran mission 4: ||  The Jacobs Installation                 || || ||
 ||  5. ||  Terran mission 5: ||  Revolution                              || || ||
 ||  6. ||  Terran mission 6: ||  Norad II                                || || ||
