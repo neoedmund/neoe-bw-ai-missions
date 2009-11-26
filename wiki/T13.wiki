@@ -1,0 +1,18 @@
+#summary Terran: 3 Desperate Alliance
+
+= Introduction =
+
+Objectives
+- survive 30 minutes
+
+
+= Details =
+
+although AI is a not very clever at micro aspect, 
+the mass operation ability is impressive and complete the mission.
+
+todo:
+bad blocking movement should be stopped.
+
+
+[http://neoe-bw-ai-missions.googlecode.com/files/0079%20EliteGT%20neoeT%20CompZ.rep replay]
