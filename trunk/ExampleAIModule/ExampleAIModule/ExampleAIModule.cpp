@@ -21,7 +21,7 @@ void ExampleAIModule::setMapFunc(){
 	_MF("Terran Tutorial",T10);
 	_MF("T1) Wasteland",T11);
 	_MF("T2) Backwater Station",T12);
-	//_MF("T3) Desperate Alliance",T13);
+	_MF("T3) Desperate Alliance",T13);
 	Broodwar->printf("mapfunc not found!");
 	mapfunc=noaction;
 }
@@ -119,7 +119,9 @@ void dumpEnemy();
 bool ExampleAIModule::onSendText(std::string text)
 {
 	if (text=="dumpEnemy") {dumpEnemy();return false;}
-	if (text=="/show players")
+	else if (text=="dumpData")
+	{Util1::exportStaticData();}
+	else if (text=="/show players")
 	{
 		showPlayers();
 		return false;

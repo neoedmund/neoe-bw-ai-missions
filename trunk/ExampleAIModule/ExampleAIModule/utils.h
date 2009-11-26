@@ -3,6 +3,8 @@
 
 using namespace BWAPI;
 
+class Array2D;
+
 namespace Util1 {
 
 	Unit* getCommandCenter();
@@ -33,9 +35,17 @@ namespace Util1 {
 	void havestGas();
 	bool isGasBuilt(Unit* u);
 	bool isHavestingGas(Unit* u);
+	void exportStaticData();
 
+	// explore
+	static Array2D* expMap;
+#define EM(x,y) (*expMap)[x][y]
+	void setExpMap();
+	void initExpMap();
+	void bordExplore(std::set<Unit*> army);
+
+	void upgarade(UpgradeType ut);
 	//members
-
 	static Unit* commandCenter = NULL;
 	static double svcPerMineral = 1.7;
 	static double svcPerGas = 3;
@@ -43,30 +53,34 @@ namespace Util1 {
 	static std::map<Unit*, std::set<Unit*>> gasWorkers;
 
 };
- class Array2D
-   {
-   public:
-       Array2D( size_t rows, size_t cols )
-       : iData( new bool[rows*cols] )
-       , iRows( rows )
-       , iCols( cols )
-       {
-       }
+class Array2D
+{
+public:
+	Array2D( size_t rows, size_t cols )
+		: iData( new bool[rows*cols] )
+		, iRows( rows )
+		, iCols( cols )
+	{
+	}
 
-     // Add copy and assignment etc.
+	// Add copy and assignment etc.
 
-     ~Array2D()
-     {
-         delete [] iData;
-     }
+	~Array2D()
+	{
+		delete [] iData;
+	}
 
-     bool * operator[]( size_t row )
-     {
-         return iData+iCols*row;
-     }
+	bool * operator[]( size_t row )
+	{
+		return iData+iCols*row;
+	}
 
-   private:
-       bool *   iData;
-       size_t  iRows;
-       size_t  iCols;
-   };
+private:
+	bool *   iData;
+	size_t  iRows;
+	size_t  iCols;
+};
+std::string toString(int value);
+std::string toString(bool value);
+void append(FILE *log, std::string data);
+typedef void (*stepFunc)();

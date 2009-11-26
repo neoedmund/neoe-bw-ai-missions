@@ -129,6 +129,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="../../../bwapi-read-only/bwapi/Release/BWAPI.lib"
+				OutputFile="$(OutDir)\NeoeAI.dll"
 				GenerateDebugInformation="false"
 				ProgramDatabaseFile=""
 				OptimizeReferences="2"
@@ -185,6 +186,10 @@
 			</File>
 			<File
 				RelativePath=".\T12.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\T13.cpp"
 				>
 			</File>
 			<File

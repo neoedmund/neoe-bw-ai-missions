@@ -28,7 +28,6 @@ static const stepFunc funcs[5] = {step0, step1, step2, step3, step4};
 static int step = 0;
 static void setexpMap();
 static Array2D* expMap;
-
 #define EM(x,y) (*expMap)[x][y]
 
 void T12(){
