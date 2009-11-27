@@ -1,39 +1,42 @@
-#include "ExampleAIModule.h"
+#include "MissionsAIModule.h"
 #include "utils.h"
 #include <BWAPI.h>
 
 using namespace BWAPI;
 
+void setMapHandler();
 
-void ExampleAIModule::onFrame()
+
+
+void MissionsAIModule::onFrame()
 {
 	if (Broodwar->isReplay())
 		return;
-	drawStats();
-	mapfunc();
+	mh->onFrame();
 }
 
-static void noaction(){}
 
-#define _MF(a,b) if (strcmp(Broodwar->mapName().c_str(),a)==0) {mapfunc = b;return;}
 
-void ExampleAIModule::setMapFunc(){
+#define _MF(a,b) if (strcmp(Broodwar->mapName().c_str(),a)==0) {mh = new b;return;}
+
+void MissionsAIModule::setMapHandler(){
 	_MF("Terran Tutorial",T10);
 	_MF("T1) Wasteland",T11);
 	_MF("T2) Backwater Station",T12);
 	_MF("T3) Desperate Alliance",T13);
-	Broodwar->printf("mapfunc not found!");
-	mapfunc=noaction;
+	_MF("Untitled Scenario",T14);
+	Broodwar->printf("map's handler not found!");
+	mh=new MapHandler;
 }
 
-void ExampleAIModule::onStart()
+void MissionsAIModule::onStart()
 {
 	Broodwar->sendText("Hello world! neoe");
 
 	Broodwar->printf("The map is %s, a %d player map",
 		Broodwar->mapName().c_str(),Broodwar->getStartLocations().size());
 
-	setMapFunc();
+	setMapHandler();
 
 	// Enable some cheat flags
 	Broodwar->enableFlag(Flag::UserInput);
@@ -62,61 +65,40 @@ void ExampleAIModule::onStart()
 
 
 
-void ExampleAIModule::onUnitCreate(BWAPI::Unit* unit)
+void MissionsAIModule::onUnitCreate(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay())
 		Broodwar->printf("A %s [%x] created at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
 	else
 	{
-		/*if we are in a replay, then we will print out the build order
-		(just of the buildings, not the units).*/
-		if (unit->getType().isBuilding() && unit->getPlayer()->isNeutral()==false)
-		{
-			int seconds=Broodwar->getFrameCount()/24;
-			int minutes=seconds/60;
-			seconds%=60;
-			Broodwar->printf("%.2d:%.2d: %s creates a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());
-		}
+		mh->onUnitCreate(unit);
 	}
 }
-void ExampleAIModule::onUnitDestroy(BWAPI::Unit* unit)
+void MissionsAIModule::onUnitDestroy(BWAPI::Unit* unit)
 {
-	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] destroyed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+	if (!Broodwar->isReplay())mh->onUnitDestroy(unit);
 }
-void ExampleAIModule::onUnitMorph(BWAPI::Unit* unit)
+void MissionsAIModule::onUnitMorph(BWAPI::Unit* unit)
 {
-	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] morphed at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
-	else
-	{
-		/*if we are in a replay, then we will print out the build order
-		(just of the buildings, not the units).*/
-		if (unit->getType().isBuilding() && unit->getPlayer()->isNeutral()==false)
-		{
-			int seconds=Broodwar->getFrameCount()/24;
-			int minutes=seconds/60;
-			seconds%=60;
-			Broodwar->printf("%.2d:%.2d: %s morphs a %s",minutes,seconds,unit->getPlayer()->getName().c_str(),unit->getType().getName().c_str());
-		}
+	if (!Broodwar->isReplay())mh->onUnitMorph(unit);
+}
+void MissionsAIModule::onUnitShow(BWAPI::Unit* unit)
+{
+	if (!Broodwar->isReplay()){
+		//Broodwar->printf("A [%s]%s(%d) [%x] spotted at (%d,%d)",
+		//	unit->getPlayer()->getName().c_str(),
+		//	unit->getType().getName().c_str(),
+		//	unit->getType().getID(),
+		//	unit,unit->getPosition().x(),unit->getPosition().y());
+		mh->onUnitShow(unit);
 	}
 }
-void ExampleAIModule::onUnitShow(BWAPI::Unit* unit)
+void MissionsAIModule::onUnitHide(BWAPI::Unit* unit)
 {
-	if (!Broodwar->isReplay())
-		Broodwar->printf("A [%s]%s(%d) [%x] spotted at (%d,%d)",
-			unit->getPlayer()->getName().c_str(),
-			unit->getType().getName().c_str(),
-			unit->getType().getID(),
-			unit,unit->getPosition().x(),unit->getPosition().y());
-}
-void ExampleAIModule::onUnitHide(BWAPI::Unit* unit)
-{
-	if (!Broodwar->isReplay())
-		Broodwar->printf("A %s [%x] was last seen at (%d,%d)",unit->getType().getName().c_str(),unit,unit->getPosition().x(),unit->getPosition().y());
+	if (!Broodwar->isReplay())mh->onUnitHide(unit);
 }
 void dumpEnemy();
-bool ExampleAIModule::onSendText(std::string text)
+bool MissionsAIModule::onSendText(std::string text)
 {
 	if (text=="dumpEnemy") {dumpEnemy();return false;}
 	else if (text=="dumpData")
@@ -129,14 +111,13 @@ bool ExampleAIModule::onSendText(std::string text)
 	{
 		showForces();
 		return false;
-	}  else
-	{
-		Broodwar->printf("You typed '%s'!",text.c_str());
-	}
-	return true;
+	}  
+	Broodwar->printf("You typed '%s'!",text.c_str());
+	mh->onSendText(text);
+	return false;
 }
 
-void ExampleAIModule::drawStats()
+void MissionsAIModule::drawStats()
 {
 	std::set<Unit*> myUnits = Broodwar->self()->getUnits();
 	Broodwar->drawTextScreen(5,32,"I have %d units:",myUnits.size());
@@ -157,7 +138,7 @@ void ExampleAIModule::drawStats()
 	}
 }
 
-void ExampleAIModule::showPlayers()
+void MissionsAIModule::showPlayers()
 {
 	std::set<Player*> players=Broodwar->getPlayers();
 	for(std::set<Player*>::iterator i=players.begin();i!=players.end();i++)
@@ -165,7 +146,7 @@ void ExampleAIModule::showPlayers()
 		Broodwar->printf("Player [%d]: %s is in force: %s",(*i)->getID(),(*i)->getName().c_str(), (*i)->getForce()->getName().c_str());
 	}
 }
-void ExampleAIModule::showForces()
+void MissionsAIModule::showForces()
 {
 	std::set<Force*> forces=Broodwar->getForces();
 	for(std::set<Force*>::iterator i=forces.begin();i!=forces.end();i++)

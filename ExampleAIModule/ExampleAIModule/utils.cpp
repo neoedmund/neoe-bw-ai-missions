@@ -18,14 +18,26 @@ namespace Util1 {
 		}
 		return NULL;
 	}
+
+
 	void makeIdelWork(){
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		std::set<Unit*> cmds  = getMyUnits(UnitTypes::Terran_Command_Center);
+		std::list<Unit*> orderedCmds;
+		orderedCmds.assign (  cmds.begin(), cmds.end());
+
+		for each(Unit* svc in getMyUnits(UnitTypes::Terran_SCV))
 		{
-			if ((*i)->getType().isWorker() && (*i)->getOrder()==Orders::PlayerGuard){
-				Unit* mineral = getNearestUnit((*i), nearMineralDis, UnitTypes::Resource_Mineral_Field,
-					Broodwar->getAllUnits());	
-				if (mineral)
-					(*i)->rightClick(mineral);
+			if (svc->getOrder()==Orders::PlayerGuard){
+				SortClass1::center=svc;
+				orderedCmds.sort(SortClass1::sortPredicate);
+				for each(Unit* cmd in orderedCmds){
+					Unit* mineral = getNearestUnit(cmd, 100000, UnitTypes::Resource_Mineral_Field,
+						Broodwar->getAllUnits());	
+					if (mineral){
+						svc->rightClick(mineral);
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -398,69 +410,129 @@ namespace Util1 {
 	}
 
 
-void setExpMap(){
-	for(int x=0; x<Broodwar->mapWidth();x++){
-		for(int y=0; y<Broodwar->mapHeight();y++){
-			if(!(*expMap)[x][y] && Broodwar->visible(x,y)) (*expMap)[x][y]=true;
-		}
-	}
-}
-void initExpMap(){
-	expMap = new Array2D(Broodwar->mapWidth(), Broodwar->mapHeight());
-	for(int x=0; x<Broodwar->mapWidth();x++){
-		for(int y=0; y<Broodwar->mapHeight();y++){
-			(*expMap)[x][y]=false;
-		}
-	}
-}
-
-static Position getUnexploredPos(){
-	for (int x=0;x<Broodwar->mapWidth();x++)
-		for (int y=0;y<Broodwar->mapHeight();y++)
-			if (!EM(x,y)&&
-				(EM(x-1,y)
-				||EM(x+1,y)
-				||EM(x,y-1)
-				||EM(x,y+1)
-				||EM(x-1,y-1)
-				||EM(x+1,y+1)
-				||EM(x+1,y-1)
-				||EM(x-1,y+1)
-				)){
-					return Position(TilePosition(x,y));
+	void setExpMap(){
+		for(int x=0; x<Broodwar->mapWidth();x++){
+			for(int y=0; y<Broodwar->mapHeight();y++){
+				if(!expMap->get(x,y) && Broodwar->visible(x,y)) {
+					expMap->set(x,y,true);
+					//stop exploring visited spot
+					for each(Unit* u in exploring[TilePosition(x,y)])
+						u->stop();
+					exploring.erase(TilePosition(x,y));
+				}
 			}
-			return Position(-1,-1);
-}
+		}
+		std::set<Unit*> en = getEnemyUnits();
+		if (en.size()>0){//stop exploring when enemy seen
+			std::map<TilePosition,std::set<Unit*>>::iterator it;
+			for ( it=exploring.begin() ; it != exploring.end(); it++ ){
+				for each(Unit* u in (*it).second)
+					u->stop();
 
-void bordExplore(std::set<Unit*> army){
-	Position p = getUnexploredPos();
-	if (p==Position(-1,-1))return;
-	int go = 0;
+			}
+			exploring.clear();
+		}
 
-	for each(Unit* u in army) {
-		if (u->getOrder()==Orders::PlayerGuard) 
-		{
-			u->attackMove(p);go++;
+	}
+
+	void initExpMap(){
+		expMap = new Array2D(Broodwar->mapWidth(), Broodwar->mapHeight());
+		for(int x=0; x<Broodwar->mapWidth();x++){
+			for(int y=0; y<Broodwar->mapHeight();y++){
+				expMap->set(x,y,false);
+			}
+		}
+	}
+
+	TilePosition getUnexploredPos(std::set<Unit*> army){
+		TilePosition p = TilePosition(-1,-1);
+		double min=1e+20;
+		for (int x=0;x<Broodwar->mapWidth();x++)
+			for (int y=0;y<Broodwar->mapHeight();y++)
+				if (!EM(x,y)&&Broodwar->walkable(x*4,y*4)&&
+					(EM(x-1,y)
+					||EM(x+1,y)
+					||EM(x,y-1)
+					||EM(x,y+1)
+					||EM(x-1,y-1)
+					||EM(x+1,y+1)
+					||EM(x+1,y-1)
+					||EM(x-1,y+1)
+					)){
+						//expMap->set(x,y,true);
+						TilePosition p2=TilePosition(x,y);
+						double  dis=0;
+						for each(Unit* u in army) dis+=u->getDistance(Position(p2));
+						if (dis<min){
+							min=dis;
+							p=p2;
+						}
+				}
+				return p;
+	}
+	void attack(Unit* enemy, std::set<Unit*> army){
+		for each(Unit* u in army) u->attackMove(enemy->getPosition());
+		std::set<Unit*> a = attacking[enemy];
+		a.insert(army.begin(), army.end());
+	}
+	void onUnitDestroy(Unit* unit){
+		std::set<Unit*> ens = getEnemyUnits();
+		std::set<Unit*> a = attacking[unit];
+		if (ens.size()==0){
+			for each(Unit* u in a) u->stop();
+		}else{
+			for each(Unit* u in a) u->attackMove((*ens.begin())->getPosition());
+		}
+	}
+	void bordExplore(std::set<Unit*> army1){
+		std::set<Unit*> army ;
+		filterOrder(army1, Orders::PlayerGuard, army);
+		if (army.size()==0)return;
+		TilePosition p = Util1::getUnexploredPos(army);
+		if (p==TilePosition(-1,-1))return;
+		Position p1 = Position(p);
+		for each(Unit* u in army) {
+			u->attackMove(p);
 			Broodwar->drawLine(CoordinateType::Map, 
 				u->getPosition().x(),u->getPosition().y(),
-				p.x(), p.y(), Colors::Green);
+				p1.x(), p1.y(), Colors::Green);
+
+		}
+		exploring.insert(std::make_pair(p, army));
+
+
+		Broodwar->drawBox(CoordinateType::Map, p1.x() , p1.y()  , p1.x()   + 8, p1.y() + 8, Colors::Orange, false);
+		Broodwar->printf("explore (%d,%d) %d %s", p1.x(), p1.y(), army.size(), EM(p.x(), p.y())?"T":"F");
+
+	}
+	void upgarade(UpgradeType ut){
+		const UnitType* ft = ut.whatUpgrades();
+		Unit* f=getMyUnit(*ft);
+		if(Broodwar->self()->minerals()>=ut.mineralPriceBase()
+			&&Broodwar->self()->gas()>=ut.gasPriceBase()
+			&&!f->isUpgrading()) f->upgrade(ut);
+	}
+
+	void filterOrder(std::set<Unit*> const &src, Order filter, std::set<Unit*> &addto){
+		for each(Unit* u in src) if (u->getOrder()==filter) 
+		{
+			addto.insert(u);
 		}
 	}
-	
-	if (go>0){
-		int w =1;
-		EM(p.x(), p.y())=true;
-		Broodwar->drawBox(CoordinateType::Map, p.x() * w, p.y() * w, p.x() * w + 8, p.y() * w + 8, Colors::Orange, false);
-		Broodwar->printf("explore (%d,%d) %d", p.x(), p.y(), go);
+	std::set<Unit*> getEnemyUnits(){
+		std::set<Unit*> res;
+		for each(Unit* u in Broodwar->getAllUnits()){
+			if (u->getPlayer()->isEnemy(Broodwar->self()))res.insert(u);
+		}
+		return res;
 	}
-}
-void upgarade(UpgradeType ut){
-	const UnitType* ft = ut.whatUpgrades();
-	Unit* f=getMyUnit(*ft);
-	if(Broodwar->self()->minerals()>=ut.mineralPriceBase()
-		&&Broodwar->self()->gas()>=ut.gasPriceBase()
-		&&!f->isUpgrading()) f->upgrade(ut);
-}
+	std::set<Unit*> getNeutralUnits(){
+		std::set<Unit*> res;
+		for each(Unit* u in Broodwar->getAllUnits()){
+			if (u->getPlayer()->isNeutral()) res.insert(u);
+		}
+		return res;
+	}
 }
 /**
 * Utiliity function for int to string conversion.
@@ -481,10 +553,11 @@ std::string toString(bool value)
 	else return std::string("0");
 }
 /**
- * Utility function for appending data to a file.
- */
+* Utility function for appending data to a file.
+*/
 void append(FILE *log, std::string data) {
 	data += "\n";
 	fprintf(log, (char*)data.c_str());
 	fflush(log);
 }
+Unit* SortClass1::center=NULL;

@@ -12,6 +12,7 @@ Objectives
 @bwapi beta 2.2
 */
 #include <BWAPI.h>
+#include "utils.h"
 
 using namespace BWAPI;
 static BWAPI::Unit* getCommandCenter();
@@ -32,7 +33,7 @@ static float scvPerMin=2.1f;
 static int gasWorkerCnt=0;
 static int maxGasWorker=3;
 
-void T10(){
+void T10::onFrame(){
 	// T 1 1
 	//1. build 3 deposit 
 	//2. build a refinery 
@@ -97,7 +98,8 @@ void T10(){
 	}else{
 	}
 	makeIdelWork();
-}
+
+};
 static BWAPI::TilePosition getGasLoc(){
 	for(std::set<Unit*>::iterator i=Broodwar->getGeysers().begin();i!=Broodwar->getGeysers().end();i++)
 	{

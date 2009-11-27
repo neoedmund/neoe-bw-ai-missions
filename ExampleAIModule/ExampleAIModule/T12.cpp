@@ -21,27 +21,23 @@ static void step2();
 static void step3();
 static void step4();
 
-typedef void (*stepFunc)();
+
 
 static const char* data[5] = {"debug info","find another base", "train forces", "attack", "finish"};
 static const stepFunc funcs[5] = {step0, step1, step2, step3, step4};
 static int step = 0;
-static void setexpMap();
-static Array2D* expMap;
-#define EM(x,y) (*expMap)[x][y]
 
-void T12(){
+
+void T12::onFrame(){
 	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 	funcs[step]();
-	setexpMap();
-}
-static void setexpMap(){
-	for(int x=0; x<Broodwar->mapWidth();x++){
-		for(int y=0; y<Broodwar->mapHeight();y++){
-			if(!(*expMap)[x][y] && Broodwar->visible(x,y)) (*expMap)[x][y]=true;
-		}
-	}
-}
+	Util1::setExpMap();
+};
+
+void T12::onUnitDestroy(BWAPI::Unit* unit){
+	Util1::onUnitDestroy(unit);
+};
+
 static void step0(){
 	Broodwar->printf("units dump begin");
 	for each(Unit* u in Broodwar->getAllUnits()){
@@ -50,12 +46,7 @@ static void step0(){
 			u->getType().getID());
 	}
 	Broodwar->printf("units dump end");
-	expMap = new Array2D(Broodwar->mapWidth(), Broodwar->mapHeight());
-	for(int x=0; x<Broodwar->mapWidth();x++){
-		for(int y=0; y<Broodwar->mapHeight();y++){
-			(*expMap)[x][y]=false;
-		}
-	}
+	Util1::initExpMap();
 	step=1;
 }
 
@@ -80,100 +71,44 @@ static void step1(){
 	Util1::trainEnough(UnitTypes::Terran_Marine,100);
 
 }
-static Position getUnexploredPos(){
-	for (int x=0;x<Broodwar->mapWidth();x++)
-		for (int y=0;y<Broodwar->mapHeight();y++)
-			if (!EM(x,y)&&
-				(EM(x-1,y)
-				||EM(x+1,y)
-				||EM(x,y-1)
-				||EM(x,y+1)
-				||EM(x-1,y-1)
-				||EM(x+1,y+1)
-				||EM(x+1,y-1)
-				||EM(x-1,y+1)
-				)){
-					EM(x,y)=true;
-					return Position(TilePosition(x,y));
-			}
-			return Position(-1,-1);
-}
-static void bordExplore(){
-	std::set<Unit*> marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
-	std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
 
-
-	Position p = getUnexploredPos();
-	if (p==Position(-1,-1))return;
-	int go = 0;
-
-	for each(Unit* u in marines) 
-		if (u->getOrder()==Orders::PlayerGuard) 
-		{
-			u->attackMove(p);go++;
-			Broodwar->drawLine(CoordinateType::Map, 
-				u->getPosition().x(),u->getPosition().y(),
-				p.x(), p.y(), Colors::Green);
-		}
-		for each(Unit* u in firebats)
-			if (u->getOrder()==Orders::PlayerGuard)	{
-				u->attackMove(p);go++;
-				Broodwar->drawLine(CoordinateType::Map, 
-					u->getPosition().x(),u->getPosition().y(),
-					p.x(), p.y(), Colors::Green);
-			}
-			if (go>0){
-				int w =1;
-				Broodwar->drawBox(CoordinateType::Map, p.x() * w, p.y() * w, p.x() * w + 8, p.y() * w + 8, Colors::Orange, false);
-				Broodwar->printf("explore (%d,%d) %d", p.x(), p.y(), go);
-			}
-}
 static void step2(){
 	Util1::defenceDepartment();
 	Util1::productDepartment();
 	if(Util1::getMyUnits(UnitTypes::Terran_SCV).size()>=Util1::svcPerMineral*
 		Broodwar->getMinerals().size()){
+			Util1::upgarade(UpgradeTypes::U_238_Shells);
 			if (rand() % 10<=6)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
 			else Util1::trainEnough(UnitTypes::Terran_Firebat,100);
 	}
 	std::set<Unit*> marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
-	std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+		std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+		std::set<Unit*> army;
+		Util1::filterOrder(marines, Orders::PlayerGuard, army);
+		Util1::filterOrder(firebats, Orders::PlayerGuard, army);
 	if (Broodwar->enemy()->getUnits().size()>0){
 		std::set<Unit*>::iterator enemyi=Broodwar->enemy()->getUnits().begin();
 		Unit* enemy = *enemyi;
-		int go = 0;
-		for each(Unit* u in marines) 
-			if (u->getOrder()==Orders::PlayerGuard) 
-			{u->attackMove(enemy->getPosition());
-		go++;}
-		for each(Unit* u in firebats)
-			if (u->getOrder()==Orders::PlayerGuard) 
-			{u->attackMove(enemy->getPosition());
-		go++;}
-		if (go>0){
+		if (army.size()>0){
+			Util1::attack(enemy, army);
 			Position p = enemy->getPosition();
-			int w = 1;
-			Broodwar->drawBox(CoordinateType::Map, p.x() * w, p.y() * 8, p.x() * w + w, p.y() * w + 8, Colors::Red, false);
-			Broodwar->printf("attack (%d,%d) %d", p.x(), p.y(), go);
+			Broodwar->drawBox(CoordinateType::Map, p.x() , p.y() , p.x()  + 8, p.y()  + 8, Colors::Red, false);
+			Broodwar->printf("attack (%d,%d) %d", p.x(), p.y(), army.size());		
 		}
 	}else{
-		int go = 0;
-		for each(Unit* u in marines) if (u->getOrder()==Orders::PlayerGuard) 
-		{
-			go++;
-		}
-		for each(Unit* u in firebats) if (u->getOrder()==Orders::PlayerGuard) 
-		{
-			go++;
-		}
-		if (go>0){
-			bordExplore();
+		std::set<Unit*> marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
+		std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+		std::set<Unit*> army;
+		Util1::filterOrder(marines, Orders::PlayerGuard, army);
+		Util1::filterOrder(firebats, Orders::PlayerGuard, army);
+		if (army.size()>0){
+			Util1::bordExplore(army);
 		}
 	}
 
 	if (marines.size()+firebats.size()>30){
 		Position boss = Position(1224,160);
-		for each(Unit* u in marines) 	 if (u->getOrder()==Orders::PlayerGuard) 	
+		for each(Unit* u in marines) if (u->getOrder()==Orders::PlayerGuard) 	
 			u->attackMove(boss);
 		for each(Unit* u in firebats) if (u->getOrder()==Orders::PlayerGuard) 
 			u->attackMove(boss);
