@@ -26,7 +26,7 @@ static BWAPI::Unit* getNextMineral();
 
 static const char* data[4] = {"goto base","build barrack", "train marines", "finish"};
 static int step = 0;
-void T11(){
+void T11::onFrame(){
 	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 	if (step==0){
 		step0();
@@ -37,7 +37,7 @@ void T11(){
 	}else if (step==3){
 		step3();
 	}else{}
-}
+};
 
 static void step0(){
 	Util1::makeIdelWork();

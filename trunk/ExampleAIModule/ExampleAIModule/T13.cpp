@@ -3,7 +3,7 @@ code for :
 Episode I Terran: 3
 Desperate Alliance
 Objectives
-- servival 30 minutes
+- survive 30 minutes
 
 -todo
 stop block move
@@ -22,14 +22,14 @@ static void step0();
 static void step1();
 
 static const char* data[2] = {"init","defence"};
-static const stepFunc funcs[5] = {step0, step1};
+static const stepFunc funcs[2] = {step0, step1};
 static int step = 0;
 
-void T13(){
-	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
-	funcs[step]();
-	Util1::setExpMap();
-}
+void T13::onFrame(){
+		Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
+		funcs[step]();
+		Util1::setExpMap();
+};
 
 void step0(){
 	Util1::initExpMap();

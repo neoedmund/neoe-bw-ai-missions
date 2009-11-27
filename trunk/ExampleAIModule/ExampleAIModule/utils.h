@@ -39,12 +39,18 @@ namespace Util1 {
 
 	// explore
 	static Array2D* expMap;
-#define EM(x,y) (*expMap)[x][y]
+	static std::map<TilePosition,std::set<Unit*>> exploring;
+	static std::map<Unit*,std::set<Unit*>> attacking;
+#define EM(x,y) expMap->get(x,y)
+	void attack(Unit* enemy, std::set<Unit*> army);
+	void onUnitDestroy(Unit* unit);
 	void setExpMap();
 	void initExpMap();
 	void bordExplore(std::set<Unit*> army);
-
 	void upgarade(UpgradeType ut);
+	void filterOrder(std::set<Unit*> const &src, Order filter, std::set<Unit*> &addto);
+	std::set<Unit*> getEnemyUnits();
+	std::set<Unit*> getNeutralUnits();
 	//members
 	static Unit* commandCenter = NULL;
 	static double svcPerMineral = 1.7;
@@ -70,9 +76,14 @@ public:
 		delete [] iData;
 	}
 
-	bool * operator[]( size_t row )
+	bool get(size_t x, size_t y)
 	{
-		return iData+iCols*row;
+		if (x<0||x>=iRows||y<0||y>=iCols)return false;
+		return iData[y+iCols*x];
+	}
+	void set(size_t x, size_t y, bool v){
+		if (x<0||x>=iRows||y<0||y>=iCols)return;
+		iData[y+iCols*x]=v;
 	}
 
 private:
@@ -83,4 +94,38 @@ private:
 std::string toString(int value);
 std::string toString(bool value);
 void append(FILE *log, std::string data);
+
+
+class MapHandler{
+public:
+	MapHandler(){};
+	virtual void onFrame(){};
+	virtual bool onSendText(std::string text){return true;};
+	virtual void onUnitCreate(BWAPI::Unit* unit){};
+	virtual void onUnitDestroy(BWAPI::Unit* unit){};
+	virtual void onUnitMorph(BWAPI::Unit* unit){};
+	virtual void onUnitShow(BWAPI::Unit* unit){};
+	virtual void onUnitHide(BWAPI::Unit* unit){};
+	virtual void onEnd(bool isWinner){};
+	virtual void onPlayerLeft(BWAPI::Player* player){};
+	virtual void onNukeDetect(BWAPI::Position target){};
+	virtual void onUnitRenegade(BWAPI::Unit* unit){};
+};
+
+
 typedef void (*stepFunc)();
+
+class T10: public MapHandler{void onFrame();};
+class T11: public MapHandler{void onFrame();};
+class T12: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
+class T13: public MapHandler{void onFrame();};
+class T14: public MapHandler{void onFrame();};
+
+
+	class SortClass1{public:
+		static Unit* center;
+		static bool sortPredicate(Unit* a,  Unit* b)
+		{
+			return a->getDistance(center) < b->getDistance(center);
+		};
+	};
