@@ -5,21 +5,24 @@ using namespace BWAPI;
 
 class Array2D;
 
+#define US std::set<Unit*>
+#define MYUNITS Broodwar->self()->getUnits()
+
 namespace Util1 {
 
 	Unit* getCommandCenter();
 	Unit* getMyUnit(UnitType type);
-	std::set<Unit*> getUnits(UnitType type, std::set<Unit*> all);
-	std::set<Unit*> getMyUnits(UnitType type);
+	US getUnits(UnitType type, US all);
+	US getMyUnits(UnitType type);
 
-	Unit* getNearestUnit(Unit* c, double maxDistance, UnitType filter, std::set<Unit*> all);
-	Unit* getNearestUnit(Position p, double maxDistance, UnitType filter, std::set<Unit*> all);
+	Unit* getNearestUnit(Unit* c, double maxDistance, UnitType filter, US all);
+	Unit* getNearestUnit(Position p, double maxDistance, UnitType filter, US all);
 	void trainEnoughSVC();
 	void buildEnoughSupplyDepot();
-	std::set<Unit*> getUnitsNearCenter(Unit* c, 
+	US getUnitsNearCenter(Unit* c, 
 		double maxDistance, 
 		UnitType filter,										  
-		std::set<Unit*> all);
+		US all);
 	bool visible(TilePosition p, int width, int height);
 	TilePosition getBuildLocation(UnitType type);
 	bool canBuildHere(TilePosition position, UnitType type);
@@ -28,9 +31,11 @@ namespace Util1 {
 	bool trainEnough(UnitType type, size_t count);
 	void train(UnitType type);
 	void build(UnitType type);
+	int getMyControlledMineralCnt();
 
 	void defenceDepartment();
 	void productDepartment();
+	void repairDepartment();
 	void buildGas();
 	void havestGas();
 	bool isGasBuilt(Unit* u);
@@ -39,24 +44,26 @@ namespace Util1 {
 
 	// explore
 	static Array2D* expMap;
-	static std::map<TilePosition,std::set<Unit*>> exploring;
-	static std::map<Unit*,std::set<Unit*>> attacking;
+	static std::map<TilePosition,US> exploring;
+	static std::map<Unit*,US> attacking;
+	static std::map<Unit*,UnitType> building;
 #define EM(x,y) expMap->get(x,y)
-	void attack(Unit* enemy, std::set<Unit*> army);
+	void attack(Unit* enemy, US army);
 	void onUnitDestroy(Unit* unit);
 	void setExpMap();
 	void initExpMap();
-	void bordExplore(std::set<Unit*> army);
+	void updateStatus();
+	void bordExplore(US army);
 	void upgarade(UpgradeType ut);
-	void filterOrder(std::set<Unit*> const &src, Order filter, std::set<Unit*> &addto);
-	std::set<Unit*> getEnemyUnits();
-	std::set<Unit*> getNeutralUnits();
+	void filterOrder(US const &src, Order filter, US &addto);
+	US getEnemyUnits();
+	US getNeutralUnits();
 	//members
 	static Unit* commandCenter = NULL;
 	static double svcPerMineral = 1.7;
 	static double svcPerGas = 3;
 	static double nearMineralDis = 500;
-	static std::map<Unit*, std::set<Unit*>> gasWorkers;
+	static std::map<Unit*, US> gasWorkers;
 
 };
 class Array2D
@@ -120,12 +127,15 @@ class T11: public MapHandler{void onFrame();};
 class T12: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
 class T13: public MapHandler{void onFrame();};
 class T14: public MapHandler{void onFrame();};
+class T15: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
 
-
-	class SortClass1{public:
-		static Unit* center;
-		static bool sortPredicate(Unit* a,  Unit* b)
-		{
-			return a->getDistance(center) < b->getDistance(center);
-		};
+class SortClass1{
+public:
+	static Unit* center;
+	static bool sortPredicate(Unit* a,  Unit* b)
+	{
+		return a->getDistance(center) < b->getDistance(center);
 	};
+};
+
+US US_diff(US const &src, US const &b);

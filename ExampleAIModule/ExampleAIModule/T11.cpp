@@ -69,7 +69,7 @@ static void step3(){}
 static void moveMarine(){
 	Unit* c = Util1::getCommandCenter();
 		
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if (c && (*i)->getType()!=UnitTypes::Terran_SCV && (*i)->getOrder()==Orders::PlayerGuard){
 			(*i)->attackMove(c->getPosition());

@@ -25,43 +25,31 @@ static void step1();
 static const char* data[2] = {"init","go"};
 static const stepFunc funcs[2] = {step0, step1};
 static int step = 0;
-void dumpSelect();
+
 void T14::onFrame(){
 	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 	funcs[step]();
 	Util1::setExpMap();
-	dumpSelect();
 };
-Unit* lastSelect=NULL;
-void dumpSelect(){
-	for each(Unit* u in Broodwar->getSelectedUnits()){
-		if (u==lastSelect){break;}
-		Broodwar->printf("select (%d,%d) %d,%s,%s",u->getPosition().x(),
-			u->getPosition().y(),
-			u->getType().getID(), u->getPlayer()->getName().c_str(),
-			u->getType().canMove()?"M":"S");
-		lastSelect=u;
-		break;
-	}
-}
+
 void step0(){
 	Util1::initExpMap();
 	step=1;
 }
 static void attackOnSight();
 void step1(){	
-	std::set<Unit*> v= Broodwar->self()->getUnits();
+	US v= MYUNITS;
 	if(v.size()>0)	Util1::bordExplore(v); 
 	attackOnSight();
 }
-void attackOnSight(){
-	std::set<Unit*> eu = Util1::getEnemyUnits();
-	std::set<Unit*> army = Broodwar->self()->getUnits();
-	std::set<Unit*>	ar2;
+static void attackOnSight(){
+	US eu = Util1::getEnemyUnits();
+	US army = MYUNITS;
+	US	ar2;
 	Util1::filterOrder(army, Orders::PlayerGuard,ar2);
 	if (ar2.size()>0){
 		if (eu.size()>0){
-			std::set<Unit*>::iterator enemyi=eu.begin();
+			US::iterator enemyi=eu.begin();
 			Unit* enemy = *enemyi;
 			Position p = enemy->getPosition();
 			for each(Unit* u in ar2){
@@ -73,7 +61,7 @@ void attackOnSight(){
 				Broodwar->printf("attack %d (%d,%d) %d", enemy->getInitialHitPoints() ,p.x(), p.y(), ar2.size());
 			}
 		}else{
-			std::set<Unit*> nes =Util1::getNeutralUnits();
+			US nes =Util1::getNeutralUnits();
 			for each(Unit* u in army){
 				for each(Unit* ne in nes){
 					if (u->getDistance(ne)<u->getType().groundWeapon()->maxRange())

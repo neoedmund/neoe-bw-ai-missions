@@ -63,7 +63,7 @@ void T10::onFrame(){
 				gasWorkerCnt=1;
 				step=2;
 			}else{
-				for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+				for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 				{
 					if ( (*i)->getType().isWorker() ){
 						if (!visible(p,type.tileWidth(), type.tileHeight())) (*i)->rightClick(Position(p.x()*32,p.y()*32));
@@ -80,7 +80,7 @@ void T10::onFrame(){
 		BWAPI::Unit* refinery=getRefinery();
 		if (refinery!=NULL){
 
-			for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+			for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 			{
 				if ( (*i)->getType().isWorker() ){
 
@@ -101,7 +101,7 @@ void T10::onFrame(){
 
 };
 static BWAPI::TilePosition getGasLoc(){
-	for(std::set<Unit*>::iterator i=Broodwar->getGeysers().begin();i!=Broodwar->getGeysers().end();i++)
+	for(US::iterator i=Broodwar->getGeysers().begin();i!=Broodwar->getGeysers().end();i++)
 	{
 		BWAPI::TilePosition p=(*i)->getTilePosition();
 		std::set<BWAPI::Unit*> units = BWAPI::Broodwar->unitsOnTile(p.x(), p.y());
@@ -115,7 +115,7 @@ static BWAPI::TilePosition getGasLoc(){
 	return BWAPI::TilePosition(-1,-1);
 }
 static BWAPI::Unit* getRefinery(){
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Terran_Refinery&&(*i)->isCompleted())
 			return (*i);
@@ -129,7 +129,7 @@ static void buildDepot(){
 	if (p==BWAPI::TilePosition(-1,-1)){
 		Broodwar->printf("cannot find place to build depot");
 	}else{
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 			if ( (*i)->getType().isWorker() ){
 				//BigAI::setCommand(*i, "build", p,UnitTypes::Terran_Supply_Depot); 
@@ -158,7 +158,7 @@ static BWAPI::TilePosition getBuildDepotLoc()
 	UnitType type= UnitTypes::Terran_Supply_Depot;
 	int width=type.tileWidth();
 	int height=type.tileHeight();
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 
 		if ((*i)->getType().isBuilding()){
@@ -183,7 +183,7 @@ static bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type)
 
 
 static void makeIdelWork(){
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		Unit* mineral = getNextMineral();
 		if (mineral && (*i)->getType().isWorker() && (*i)->getOrder()==Orders::PlayerGuard){
@@ -196,13 +196,13 @@ BWAPI::Unit* getNextMineral(){
 	int total =  Broodwar->getMinerals().size();
 	if (total==0)return NULL;
 	nextMineral=(nextMineral++)% total; 
-	std::set<Unit*>::iterator i=Broodwar->getMinerals().begin();	
+	US::iterator i=Broodwar->getMinerals().begin();	
 	return *i;
 }
 static Unit* commandCenter=NULL;
 BWAPI::Unit* getCommandCenter(){
 	if (commandCenter) return commandCenter;
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Terran_Command_Center){
 			commandCenter=*i;
@@ -213,7 +213,7 @@ BWAPI::Unit* getCommandCenter(){
 }
 static int getSCVCnt(){
 	int cnt=0;
-	for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType().isWorker()){
 			cnt++;
@@ -223,7 +223,7 @@ static int getSCVCnt(){
 }
 static int getMineralCnt(){
 	int cnt=0;
-	for(std::set<Unit*>::iterator i=Broodwar->getAllUnits().begin();i!=Broodwar->getAllUnits().end();i++)
+	for(US::iterator i=Broodwar->getAllUnits().begin();i!=Broodwar->getAllUnits().end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Resource_Mineral_Field){
 			cnt++;

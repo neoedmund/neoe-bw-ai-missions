@@ -7,14 +7,27 @@ using namespace BWAPI;
 void setMapHandler();
 
 
+Unit* lastSelect=NULL;
+void dumpSelect(){
+	for each(Unit* u in Broodwar->getSelectedUnits()){
+		if (u==lastSelect){break;}
+		Broodwar->printf("select [%s]%s(%d) [%x] at (%d,%d)",
+			u->getPlayer()->getName().c_str(),
+			u->getType().getName().c_str(),
+			u->getType().getID(),
+			u,u->getPosition().x(),u->getPosition().y());
+		lastSelect=u;
+		break;
+	}
+}
 
 void MissionsAIModule::onFrame()
 {
 	if (Broodwar->isReplay())
 		return;
 	mh->onFrame();
+	dumpSelect();
 }
-
 
 
 #define _MF(a,b) if (strcmp(Broodwar->mapName().c_str(),a)==0) {mh = new b;return;}
@@ -25,6 +38,7 @@ void MissionsAIModule::setMapHandler(){
 	_MF("T2) Backwater Station",T12);
 	_MF("T3) Desperate Alliance",T13);
 	_MF("Untitled Scenario",T14);
+	_MF("T5) The Antigan Revolt",T15);
 	Broodwar->printf("map's handler not found!");
 	mh=new MapHandler;
 }
@@ -85,11 +99,11 @@ void MissionsAIModule::onUnitMorph(BWAPI::Unit* unit)
 void MissionsAIModule::onUnitShow(BWAPI::Unit* unit)
 {
 	if (!Broodwar->isReplay()){
-		//Broodwar->printf("A [%s]%s(%d) [%x] spotted at (%d,%d)",
-		//	unit->getPlayer()->getName().c_str(),
-		//	unit->getType().getName().c_str(),
-		//	unit->getType().getID(),
-		//	unit,unit->getPosition().x(),unit->getPosition().y());
+		Broodwar->printf("A [%s]%s(%d) [%x] spot at (%d,%d)",
+			unit->getPlayer()->getName().c_str(),
+			unit->getType().getName().c_str(),
+			unit->getType().getID(),
+			unit,unit->getPosition().x(),unit->getPosition().y());
 		mh->onUnitShow(unit);
 	}
 }
@@ -119,10 +133,10 @@ bool MissionsAIModule::onSendText(std::string text)
 
 void MissionsAIModule::drawStats()
 {
-	std::set<Unit*> myUnits = Broodwar->self()->getUnits();
+	US myUnits = MYUNITS;
 	Broodwar->drawTextScreen(5,32,"I have %d units:",myUnits.size());
 	std::map<UnitType, int> unitTypeCounts;
-	for(std::set<Unit*>::iterator i=myUnits.begin();i!=myUnits.end();i++)
+	for(US::iterator i=myUnits.begin();i!=myUnits.end();i++)
 	{
 		if (unitTypeCounts.find((*i)->getType())==unitTypeCounts.end())
 		{

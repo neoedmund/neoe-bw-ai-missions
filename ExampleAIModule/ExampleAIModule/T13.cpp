@@ -53,18 +53,18 @@ void step1(){
 			if(rd<10)Util1::buildEnough(UnitTypes::Terran_Missile_Turret,10);
 	}
 	attackOnSight();	
-	std::set<Unit*> v= Util1::getMyUnits(UnitTypes::Terran_Vulture);
+	US v= Util1::getMyUnits(UnitTypes::Terran_Vulture);
 	if(v.size()>3)	Util1::bordExplore(v); 
 
 }
-void attackOnSight(){
-	std::set<Unit*> am = Util1::getMyUnits(UnitTypes::Terran_Marine);
-	std::set<Unit*> af = Util1::getMyUnits(UnitTypes::Terran_Firebat);
-	std::set<Unit*> av = Util1::getMyUnits(UnitTypes::Terran_Vulture);
-	std::set<Unit*> eu = Broodwar->enemy()->getUnits();
+static void attackOnSight(){
+	US am = Util1::getMyUnits(UnitTypes::Terran_Marine);
+	US af = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+	US av = Util1::getMyUnits(UnitTypes::Terran_Vulture);
+	US eu = Broodwar->enemy()->getUnits();
 	if (eu.size()>0){
 		int md= 200*(am.size()+af.size()+av.size()-eu.size());
-		std::set<Unit*>::iterator enemyi=eu.begin();
+		US::iterator enemyi=eu.begin();
 		Unit* enemy = *enemyi;
 		int go = 0;
 		if(enemy->getType().isFlyer())
