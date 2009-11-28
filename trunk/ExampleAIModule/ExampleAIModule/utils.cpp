@@ -10,7 +10,7 @@ using namespace BWAPI;
 //Util::Logger* log = new Util::FileLogger("neoe-ai", Util::LogLevel::MicroDetailed);
 namespace Util1 {
 	Unit* getMyUnit(UnitType type){
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 			if ((*i)->getType()==type){
 				return *i;
@@ -21,7 +21,7 @@ namespace Util1 {
 
 
 	void makeIdelWork(){
-		std::set<Unit*> cmds  = getMyUnits(UnitTypes::Terran_Command_Center);
+		US cmds  = getMyUnits(UnitTypes::Terran_Command_Center);
 		std::list<Unit*> orderedCmds;
 		orderedCmds.assign (  cmds.begin(), cmds.end());
 
@@ -41,15 +41,15 @@ namespace Util1 {
 			}
 		}
 	}
-	std::set<Unit*> getMyUnits(UnitType type){
-		std::set<Unit*> us;
-		for each(Unit* u in Broodwar->self()->getUnits()){if (u->getType()==type){
+	US getMyUnits(UnitType type){
+		US us;
+		for each(Unit* u in MYUNITS){if (u->getType()==type){
 			us.insert(u);
 		}}
 		return us;
 	}
-	std::set<Unit*> getUnits(UnitType type, std::set<Unit*> all){
-		std::set<Unit*> us;
+	US getUnits(UnitType type, US all){
+		US us;
 		for each(Unit* u in all){if (u->getType()==type){
 			us.insert(u);
 		}}
@@ -59,7 +59,7 @@ namespace Util1 {
 		if (commandCenter==NULL) commandCenter=getMyUnit(UnitTypes::Terran_Command_Center);
 		return commandCenter;
 	}
-	Unit* getNearestUnit(Position p, double maxDistance, UnitType filter,std::set<Unit*> all){
+	Unit* getNearestUnit(Position p, double maxDistance, UnitType filter,US all){
 		Unit* nearest=NULL;
 		double distance = maxDistance;
 
@@ -72,7 +72,7 @@ namespace Util1 {
 		}
 		return nearest;
 	}
-	Unit* getNearestUnit(Unit* c, double maxDistance, UnitType filter,std::set<Unit*> all){
+	Unit* getNearestUnit(Unit* c, double maxDistance, UnitType filter,US all){
 		return getNearestUnit(c->getPosition(), maxDistance,filter,all);
 	}
 
@@ -94,10 +94,10 @@ namespace Util1 {
 					}}}
 	}
 
-	std::set<Unit*> getUnitsNearCenter(Unit* c, 
+	US getUnitsNearCenter(Unit* c, 
 		double maxDistance, UnitType filter,
-		std::set<Unit*> all){
-			std::set<Unit*> res;
+		US all){
+			US res;
 			for each( Unit* u in all){
 				double dis;
 				if (u->getType()==filter
@@ -107,32 +107,58 @@ namespace Util1 {
 			}
 			return res;
 	}
+	
+	int getBuildingSupplyDepot(){
+		std::map<Unit* ,UnitType>::iterator it;
+		int c=0;
+		for ( it=building.begin() ; it != building.end(); it++ ){
+			if ((*it).second==UnitTypes::Terran_Supply_Depot)c++;
+		}
+		return c;		
+	}
+
 	void buildEnoughSupplyDepot(){
 		Player* me = Broodwar->self();
-		if (me->minerals()>=100 && me->supplyUsed()+4 > me->supplyTotal() && me->supplyTotal()<200){
+		if (me->minerals()>=100 && me->supplyUsed()+4 > me->supplyTotal()+8*getBuildingSupplyDepot()
+			&& me->supplyTotal()<200){
 			build(UnitTypes::Terran_Supply_Depot);
 		}
 	}
-
+	double getBuildScore(TilePosition tp){
+		double score=0;
+		Position p = Position(tp);
+		for each(Unit* u in MYUNITS){
+			if (u->getType().isBuilding()){
+				score-=u->getDistance(p);
+			}
+		}
+		return score;
+	}
 	TilePosition getBuildLocation(UnitType type){
 		int space=4;
 		int width=type.tileWidth();
 		int height=type.tileHeight();
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		double maxScore=-1000000000;
+		TilePosition res=TilePosition(-1,-1);
+		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 
 			if ((*i)->getType().isBuilding()){
 				for (int x=(*i)->getTilePosition().x()-width-space;x<=(*i)->getTilePosition().x()+space;x++){
 					for (int y=(*i)->getTilePosition().y()-height-space;y<=(*i)->getTilePosition().y()+space;y++){
 						if (canBuildHere(TilePosition(x,y),type)){
-							return TilePosition(x,y);
+							double score = getBuildScore(TilePosition(x,y));
+							if (score>maxScore){
+								maxScore=score;
+								res=TilePosition(x,y);
+							}
 						}
 					}
 
 				}
 			}
 		}
-		return TilePosition(-1,-1);
+		return res;
 	}
 
 	bool visible(TilePosition p, int width, int height){
@@ -160,13 +186,19 @@ namespace Util1 {
 		if (p==TilePosition(-1,-1)){
 			Broodwar->printf("cannot find place to build %s", type.getName().c_str());
 		}else{
-			Unit* u = getNearestUnit(Position(p), nearMineralDis, UnitTypes::Terran_SCV, Broodwar->self()->getUnits());
-			if(u){			
+			US SCVs = getMyUnits(UnitTypes::Terran_SCV);
+			US buildingSCV;
+			filterOrder(SCVs, Orders::BuildTerran, buildingSCV);
+			US ava = US_diff(SCVs, buildingSCV);
+			
+			Unit* u = getNearestUnit(Position(p), 1000000, UnitTypes::Terran_SCV, ava);
+			if(u){	
+				building.insert(std::make_pair(u, type));
 				if (!visible(p,type.tileWidth(), type.tileHeight())) u->rightClick(Position(p.x()*32,p.y()*32));
 				else u->build(Position(p),type);
 			}else{
-				Broodwar->printf("cannot find SVC to build %s at (%d,%d)", type.getName().c_str(),
-					p.x(), p.y());		
+				Broodwar->drawTextScreen(5,1,"cannot find SVC to build %s at (%d,%d) scvs(%d)", type.getName().c_str(),
+					p.x(), p.y(), ava.size());		
 			}
 		}
 	}
@@ -177,7 +209,7 @@ namespace Util1 {
 		const UnitType* builder = type.whatBuilds().first;	
 		int v =type.whatBuilds().second;
 		if (v==0) return;
-		for(std::set<Unit*>::iterator i=Broodwar->self()->getUnits().begin();i!=Broodwar->self()->getUnits().end();i++)
+		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 			if ( (*i)->getType()==*builder  && !(*i)->isTraining()){
 				(*i)->train(type);
@@ -187,13 +219,13 @@ namespace Util1 {
 
 
 	bool buildEnough(UnitType type, size_t count){
-		std::set<Unit*> us = getMyUnits(type);
+		US us = getMyUnits(type);
 		if (us.size()>=count) return true;
 		build(type);
 		return false;
 	}
 	bool trainEnough(UnitType type, size_t count){
-		std::set<Unit*> us = getMyUnits(type);
+		US us = getMyUnits(type);
 		if (us.size()>=count)return true;
 		train(type);
 		return false;
@@ -212,15 +244,15 @@ namespace Util1 {
 	void havestGas(){
 		if (Broodwar->self()->minerals()<100)return;//mining first
 		for each(Unit* refinery in getMyUnits(UnitTypes::Terran_Refinery)) if (refinery->isCompleted()){		
-			std::set<Unit*> workers = gasWorkers[refinery];
-			std::set<Unit*> dead;
+			US workers = gasWorkers[refinery];
+			US dead;
 			for each(Unit* worker in workers){
 				if (!worker->exists()) dead.insert(worker);
 			}
 			if (workers.size()-dead.size()<svcPerGas){
 				double distance= nearMineralDis;
 				Unit* scv=NULL;
-				for each(Unit* u in Broodwar->self()->getUnits()){
+				for each(Unit* u in MYUNITS){
 					double dis;
 					if (u->getType()==UnitTypes::Terran_SCV
 						&& !isHavestingGas(u)
@@ -250,13 +282,13 @@ namespace Util1 {
 	void buildGas(){
 		if (Broodwar->self()->minerals()<100)return;
 		for each(Unit* cmdCenter in getMyUnits(UnitTypes::Terran_Command_Center)){				
-			std::set<Unit*>  gases = getUnitsNearCenter(cmdCenter,
+			US  gases = getUnitsNearCenter(cmdCenter,
 				nearMineralDis,UnitTypes::Resource_Vespene_Geyser, 
 				Broodwar->getAllUnits());
 			for each(Unit* gas in gases){
 				if (!isGasBuilt(gas)){
 					Unit* scv = getNearestUnit(gas->getPosition(), 
-						nearMineralDis, UnitTypes::Terran_SCV, Broodwar->self()->getUnits());
+						nearMineralDis, UnitTypes::Terran_SCV, MYUNITS);
 					if(scv){	
 						UnitType type = UnitTypes::Terran_Refinery;
 						TilePosition p =  gas->getTilePosition();
@@ -273,7 +305,7 @@ namespace Util1 {
 
 	bool isGasBuilt(Unit* geyser){
 		TilePosition p=geyser->getTilePosition();
-		std::set<Unit*> units = Broodwar->unitsOnTile(p.x(), p.y());
+		US units = Broodwar->unitsOnTile(p.x(), p.y());
 		for each(Unit* j in units)
 		{ 
 			if ((j->getType().isBuilding() && !j->isLifted()))
@@ -408,8 +440,22 @@ namespace Util1 {
 			append(typeData, upgradeType);
 		}
 	}
+	void updateBuilding(){
+		std::map<Unit* ,UnitType>::iterator it;
 
+		for ( it=building.begin() ; it != building.end(); it++ ){
+			Unit* u=(*it).first;
+			if (!u->exists()||u->getOrder()==Orders::PlayerGuard){
+				building.erase(u);
+			}
+		}
 
+	}
+	
+	void updateStatus(){
+		setExpMap();
+		updateBuilding();
+	}
 	void setExpMap(){
 		for(int x=0; x<Broodwar->mapWidth();x++){
 			for(int y=0; y<Broodwar->mapHeight();y++){
@@ -422,9 +468,9 @@ namespace Util1 {
 				}
 			}
 		}
-		std::set<Unit*> en = getEnemyUnits();
+		US en = getEnemyUnits();
 		if (en.size()>0){//stop exploring when enemy seen
-			std::map<TilePosition,std::set<Unit*>>::iterator it;
+			std::map<TilePosition,US>::iterator it;
 			for ( it=exploring.begin() ; it != exploring.end(); it++ ){
 				for each(Unit* u in (*it).second)
 					u->stop();
@@ -444,7 +490,7 @@ namespace Util1 {
 		}
 	}
 
-	TilePosition getUnexploredPos(std::set<Unit*> army){
+	TilePosition getUnexploredPos(US army){
 		TilePosition p = TilePosition(-1,-1);
 		double min=1e+20;
 		for (int x=0;x<Broodwar->mapWidth();x++)
@@ -470,22 +516,22 @@ namespace Util1 {
 				}
 				return p;
 	}
-	void attack(Unit* enemy, std::set<Unit*> army){
+	void attack(Unit* enemy, US army){
 		for each(Unit* u in army) u->attackMove(enemy->getPosition());
-		std::set<Unit*> a = attacking[enemy];
+		US a = attacking[enemy];
 		a.insert(army.begin(), army.end());
 	}
 	void onUnitDestroy(Unit* unit){
-		std::set<Unit*> ens = getEnemyUnits();
-		std::set<Unit*> a = attacking[unit];
+		US ens = getEnemyUnits();
+		US a = attacking[unit];
 		if (ens.size()==0){
 			for each(Unit* u in a) u->stop();
 		}else{
 			for each(Unit* u in a) u->attackMove((*ens.begin())->getPosition());
 		}
 	}
-	void bordExplore(std::set<Unit*> army1){
-		std::set<Unit*> army ;
+	void bordExplore(US army1){
+		US army ;
 		filterOrder(army1, Orders::PlayerGuard, army);
 		if (army.size()==0)return;
 		TilePosition p = Util1::getUnexploredPos(army);
@@ -508,30 +554,54 @@ namespace Util1 {
 	void upgarade(UpgradeType ut){
 		const UnitType* ft = ut.whatUpgrades();
 		Unit* f=getMyUnit(*ft);
-		if(Broodwar->self()->minerals()>=ut.mineralPriceBase()
-			&&Broodwar->self()->gas()>=ut.gasPriceBase()
-			&&!f->isUpgrading()) f->upgrade(ut);
+		if(f){
+			if(Broodwar->self()->minerals()>=ut.mineralPriceBase()
+				&&Broodwar->self()->gas()>=ut.gasPriceBase()
+				&&!f->isUpgrading()) f->upgrade(ut);
+		}
 	}
 
-	void filterOrder(std::set<Unit*> const &src, Order filter, std::set<Unit*> &addto){
+	void filterOrder(US const &src, Order filter, US &addto){
 		for each(Unit* u in src) if (u->getOrder()==filter) 
 		{
 			addto.insert(u);
 		}
 	}
-	std::set<Unit*> getEnemyUnits(){
-		std::set<Unit*> res;
+	US getEnemyUnits(){
+		US res;
 		for each(Unit* u in Broodwar->getAllUnits()){
 			if (u->getPlayer()->isEnemy(Broodwar->self()))res.insert(u);
 		}
 		return res;
 	}
-	std::set<Unit*> getNeutralUnits(){
-		std::set<Unit*> res;
+	US getNeutralUnits(){
+		US res;
 		for each(Unit* u in Broodwar->getAllUnits()){
 			if (u->getPlayer()->isNeutral()) res.insert(u);
 		}
 		return res;
+	}
+	int getMyControlledMineralCnt(){
+		int t=0;
+		for each(Unit* cc in getMyUnits(UnitTypes::Terran_Command_Center)){
+
+			t += getUnitsNearCenter(cc,
+				nearMineralDis,UnitTypes::Resource_Mineral_Field, 
+				Broodwar->getAllUnits()).size();
+		}
+		return t;
+	}
+	void repairDepartment(){
+		if (Broodwar->self()->minerals()>100){
+			for each(Unit* u in MYUNITS){
+				if (u->getType().isBuilding() && u->getHitPoints()<u->getInitialHitPoints()){
+					Unit* scv=getNearestUnit(u->getPosition(), 100000, UnitTypes::Terran_SCV,MYUNITS);
+					if (scv && !scv->isConstructing()){
+						scv->rightClick(u);
+					}
+				}
+			}
+		}
 	}
 }
 /**
@@ -561,3 +631,13 @@ void append(FILE *log, std::string data) {
 	fflush(log);
 }
 Unit* SortClass1::center=NULL;
+
+US US_diff(US const &src, US const &b){
+	US a;
+	for each(Unit* u in src) a.insert(u);
+	for each(Unit* u in b){
+		US::iterator i = a.find(u);
+		if(i!=a.end()) a.erase(i);
+	}
+	return a;
+}

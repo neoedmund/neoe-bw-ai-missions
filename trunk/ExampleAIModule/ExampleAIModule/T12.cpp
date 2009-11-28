@@ -53,7 +53,7 @@ static void step0(){
 static void step1(){
 	//[Antiga]Terran Command Center [57e07c0] has been spotted at (224,144)
 	Unit* raynor=NULL;
-	for each(Unit* u in Broodwar->self()->getUnits()){
+	for each(Unit* u in MYUNITS){
 		if (u->getType().getID()==229) raynor = u;
 	}
 
@@ -81,13 +81,13 @@ static void step2(){
 			if (rand() % 10<=6)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
 			else Util1::trainEnough(UnitTypes::Terran_Firebat,100);
 	}
-	std::set<Unit*> marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
-		std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
-		std::set<Unit*> army;
+	US marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
+		US firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+		US army;
 		Util1::filterOrder(marines, Orders::PlayerGuard, army);
 		Util1::filterOrder(firebats, Orders::PlayerGuard, army);
 	if (Broodwar->enemy()->getUnits().size()>0){
-		std::set<Unit*>::iterator enemyi=Broodwar->enemy()->getUnits().begin();
+		US::iterator enemyi=Broodwar->enemy()->getUnits().begin();
 		Unit* enemy = *enemyi;
 		if (army.size()>0){
 			Util1::attack(enemy, army);
@@ -96,9 +96,9 @@ static void step2(){
 			Broodwar->printf("attack (%d,%d) %d", p.x(), p.y(), army.size());		
 		}
 	}else{
-		std::set<Unit*> marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
-		std::set<Unit*> firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
-		std::set<Unit*> army;
+		US marines = Util1::getMyUnits(UnitTypes::Terran_Marine);
+		US firebats = Util1::getMyUnits(UnitTypes::Terran_Firebat);
+		US army;
 		Util1::filterOrder(marines, Orders::PlayerGuard, army);
 		Util1::filterOrder(firebats, Orders::PlayerGuard, army);
 		if (army.size()>0){
