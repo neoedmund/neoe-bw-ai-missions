@@ -123,6 +123,7 @@ namespace Util1 {
 		}
 	}
 	void microAttack(US army){
+		//BW->printf("army size %d", army.size());
 		for each(Unit* u in army){
 			microControl(u);
 		}
@@ -138,8 +139,10 @@ namespace Util1 {
 			}else{
 				army=getMyArmy();
 			}
-			if (army.size()>0){
-				attack(e1, army);
+			US idle;
+			filterOrder(army, Orders::PlayerGuard, idle);
+			if (idle.size()>0){
+				attack(e1, idle);
 			}
 		}
 		
@@ -572,12 +575,12 @@ namespace Util1 {
 
 		for ( it=building.begin() ; it != building.end(); it++ ){
 			Unit* u=(*it).first;
-			if ((BW->getFrameCount()-buildingTime[u]>10)&&(!u->exists()
+			if ((BW->getFrameCount()-buildingTime[u]>50)&&(!u->exists()
 				||u->getOrder()==Orders::MoveToGas
 				||u->getOrder()==Orders::MoveToMinerals
 				||u->getOrder()==Orders::PlayerGuard
 				)){
-					BW->printf("remove building for order %s", u->getOrder().getName().c_str());
+					BW->printf("remove building %x for order %s",u, u->getOrder().getName().c_str());
 					building.erase(u);
 					buildingTime.erase(u);
 			}
