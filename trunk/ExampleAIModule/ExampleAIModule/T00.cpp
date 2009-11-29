@@ -33,6 +33,7 @@ void step1(){
 	Util1::productDepartment();
 	Util1::repairDepartment();
 	Util1::buildEnough(UnitTypes::Terran_Engineering_Bay,1);
+	Util1::buildEnough(UnitTypes::Terran_Missile_Turret,1);
 	Util1::buildEnough(UnitTypes::Terran_Academy,1);
 	Util1::buildEnough(UnitTypes::Terran_Barracks,4);			
 	Util1::buildEnough(UnitTypes::Terran_Factory,2);
@@ -40,11 +41,12 @@ void step1(){
 	Util1::upgarade(UpgradeTypes::Terran_Infantry_Weapons);
 	Util1::upgarade(UpgradeTypes::Terran_Infantry_Armor);
 
-	int rd =rand() % 100;
-	if (rd<20)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
-	else if (rd<40)	Util1::trainEnough(UnitTypes::Terran_Firebat,100);
-	else if (rd<60)	Util1::trainEnough(UnitTypes::Terran_Wraith,100);
-	else if (rd<80)	Util1::trainEnough(UnitTypes::Terran_Vulture,100);
+	int rd =rand() % 60;
+	if (rd<10)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
+	else if (rd<20)	Util1::trainEnough(UnitTypes::Terran_Firebat,100);
+	else if (rd<30)	Util1::trainEnough(UnitTypes::Terran_Wraith,100);
+	else if (rd<40)	Util1::trainEnough(UnitTypes::Terran_Vulture,100);
+	else if (rd<50)	Util1::trainEnough(UnitTypes::Terran_Medic,30);
 	else Util1::trainEnough(UnitTypes::Terran_Dropship,3);
 
 	Util1::attackOnSight();
