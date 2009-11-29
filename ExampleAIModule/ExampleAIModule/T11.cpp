@@ -27,7 +27,7 @@ static BWAPI::Unit* getNextMineral();
 static const char* data[4] = {"goto base","build barrack", "train marines", "finish"};
 static int step = 0;
 void T11::onFrame(){
-	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
+	BW->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 	if (step==0){
 		step0();
 	}else if (step==1){
@@ -45,7 +45,7 @@ static void step0(){
 	Util1::buildEnoughSupplyDepot();
 	Util1::trainEnoughSVC();	
 	size_t mineralCnt = Util1::getUnitsNearCenter(Util1::getCommandCenter(),Util1::nearMineralDis,
-		UnitTypes::Resource_Mineral_Field, Broodwar->getAllUnits()).size();
+		UnitTypes::Resource_Mineral_Field, BW->getAllUnits()).size();
 	size_t svcCnt = Util1::getMyUnits(UnitTypes::Terran_SCV).size();
 	if (mineralCnt*Util1::svcPerMineral<=svcCnt)	{
 		step=1;

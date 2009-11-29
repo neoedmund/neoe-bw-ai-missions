@@ -26,7 +26,7 @@ static const stepFunc funcs[2] = {step0, step1};
 static int step = 0;
 
 void T13::onFrame(){
-		Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
+		BW->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 		funcs[step]();
 		Util1::setExpMap();
 };
@@ -40,7 +40,7 @@ void step1(){
 	Util1::defenceDepartment();
 	Util1::productDepartment();
 	if(Util1::getMyUnits(UnitTypes::Terran_SCV).size()>=Util1::svcPerMineral*
-		Broodwar->getMinerals().size()){
+		BW->getMinerals().size()){
 			int rd = rand() % 30;
 			if (rd<10)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
 			else if (rd<20) Util1::trainEnough(UnitTypes::Terran_Firebat,100);
@@ -61,7 +61,7 @@ static void attackOnSight(){
 	US am = Util1::getMyUnits(UnitTypes::Terran_Marine);
 	US af = Util1::getMyUnits(UnitTypes::Terran_Firebat);
 	US av = Util1::getMyUnits(UnitTypes::Terran_Vulture);
-	US eu = Broodwar->enemy()->getUnits();
+	US eu = BW->enemy()->getUnits();
 	if (eu.size()>0){
 		int md= 200*(am.size()+af.size()+av.size()-eu.size());
 		US::iterator enemyi=eu.begin();
@@ -90,8 +90,8 @@ static void attackOnSight(){
 		if (go>0){
 			Position p = enemy->getPosition();
 			int w = 1;
-			Broodwar->drawBox(CoordinateType::Map, p.x() * w, p.y() * 8, p.x() * w + w, p.y() * w + 8, Colors::Red, false);
-			Broodwar->printf("attack (%d,%d) %d", p.x(), p.y(), go);
+			BW->drawBox(CoordinateType::Map, p.x() * w, p.y() * 8, p.x() * w + w, p.y() * w + 8, Colors::Red, false);
+			BW->printf("attack (%d,%d) %d", p.x(), p.y(), go);
 		}
 	}
 }

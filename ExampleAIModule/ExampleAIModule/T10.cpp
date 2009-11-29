@@ -38,9 +38,9 @@ void T10::onFrame(){
 	//1. build 3 deposit 
 	//2. build a refinery 
 	//3. gather 100 gas
-	Broodwar->drawTextScreen(5,16,"in step:%d",step);
+	BW->drawTextScreen(5,16,"in step:%d",step);
 	BWAPI::Unit* commandCenter = getCommandCenter();
-	Player* me = Broodwar->self();
+	Player* me = BW->self();
 	if (step==0){// build 2.5*mineral piece of SCV, build deposit if necessary
 		if (me->supplyUsed()+4 > me->supplyTotal() && me->supplyTotal()<200){
 			buildDepot();
@@ -52,7 +52,7 @@ void T10::onFrame(){
 				commandCenter->train(UnitTypes::Terran_SCV);
 		}
 		if (getSCVCnt()>=scvPerMin*getMineralCnt()){
-			Broodwar->printf("scv count ok, let's go to step 1");
+			BW->printf("scv count ok, let's go to step 1");
 			//step=1;
 		}
 
@@ -84,7 +84,7 @@ void T10::onFrame(){
 			{
 				if ( (*i)->getType().isWorker() ){
 
-					Broodwar->printf("assign more gas worker %d",gasWorkerCnt);
+					BW->printf("assign more gas worker %d",gasWorkerCnt);
 					(*i)->rightClick(refinery);
 					gasWorkerCnt++;
 					if (gasWorkerCnt>=maxGasWorker){
@@ -101,10 +101,10 @@ void T10::onFrame(){
 
 };
 static BWAPI::TilePosition getGasLoc(){
-	for(US::iterator i=Broodwar->getGeysers().begin();i!=Broodwar->getGeysers().end();i++)
+	for(US::iterator i=BW->getGeysers().begin();i!=BW->getGeysers().end();i++)
 	{
 		BWAPI::TilePosition p=(*i)->getTilePosition();
-		std::set<BWAPI::Unit*> units = BWAPI::Broodwar->unitsOnTile(p.x(), p.y());
+		std::set<BWAPI::Unit*> units = BWAPI::BW->unitsOnTile(p.x(), p.y());
 		for(std::set<BWAPI::Unit*>::iterator j = units.begin(); j != units.end(); j++)
 		{ 
 			if (!((*j)->getType().isBuilding() && !(*j)->isLifted()))
@@ -127,7 +127,7 @@ static void buildDepot(){
 	UnitType type= UnitTypes::Terran_Supply_Depot;
 
 	if (p==BWAPI::TilePosition(-1,-1)){
-		Broodwar->printf("cannot find place to build depot");
+		BW->printf("cannot find place to build depot");
 	}else{
 		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
@@ -143,7 +143,7 @@ static void buildDepot(){
 static bool visible(BWAPI::TilePosition p, int width, int height){
 	for (int x=p.x();x<=p.x()+width;x++){
 		for (int y=p.y();y<=p.y()+height;y++){
-			if (!Broodwar->visible(x,y)){
+			if (!BW->visible(x,y)){
 				return false;
 			}
 		}
@@ -177,7 +177,7 @@ static BWAPI::TilePosition getBuildDepotLoc()
 
 static bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type) 
 {
-	return Broodwar->canBuildHere(NULL, position, type);
+	return BW->canBuildHere(NULL, position, type);
 
 }
 
@@ -193,10 +193,10 @@ static void makeIdelWork(){
 }
 static int nextMineral=0;
 BWAPI::Unit* getNextMineral(){
-	int total =  Broodwar->getMinerals().size();
+	int total =  BW->getMinerals().size();
 	if (total==0)return NULL;
 	nextMineral=(nextMineral++)% total; 
-	US::iterator i=Broodwar->getMinerals().begin();	
+	US::iterator i=BW->getMinerals().begin();	
 	return *i;
 }
 static Unit* commandCenter=NULL;
@@ -223,13 +223,13 @@ static int getSCVCnt(){
 }
 static int getMineralCnt(){
 	int cnt=0;
-	for(US::iterator i=Broodwar->getAllUnits().begin();i!=Broodwar->getAllUnits().end();i++)
+	for(US::iterator i=BW->getAllUnits().begin();i!=BW->getAllUnits().end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Resource_Mineral_Field){
 			cnt++;
 		}
 	}
-	if (mineralCnt!=cnt)	Broodwar->printf("find mineral %d", cnt);
+	if (mineralCnt!=cnt)	BW->printf("find mineral %d", cnt);
 	mineralCnt=cnt;
 	return cnt;
 

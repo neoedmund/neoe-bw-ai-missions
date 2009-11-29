@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\T00.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\T10.cpp"
 				>
 			</File>

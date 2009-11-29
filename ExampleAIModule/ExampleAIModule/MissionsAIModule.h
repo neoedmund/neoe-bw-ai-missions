@@ -18,8 +18,8 @@ public:
 	 void onUnitHide(BWAPI::Unit* unit);
 	 void onEnd(bool isWinner){};
 	 void onPlayerLeft(BWAPI::Player* player){};
-	 void onNukeDetect(BWAPI::Position target){if (!Broodwar->isReplay())mh->onNukeDetect(target);};
-	 void onUnitRenegade(BWAPI::Unit* unit){if (!Broodwar->isReplay())mh->onUnitRenegade(unit);};
+	 void onNukeDetect(BWAPI::Position target){if (!BW->isReplay())mh->onNukeDetect(target);};
+	 void onUnitRenegade(BWAPI::Unit* unit){if (!BW->isReplay())mh->onUnitRenegade(unit);};
 
 	void drawStats(); 
 	void showPlayers();

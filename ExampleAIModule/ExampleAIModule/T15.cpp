@@ -38,7 +38,7 @@ static const stepFunc funcs[6] = {step0, step1, step2, step3, step4, step5};
 static int step = 0;
 
 void T15::onFrame(){
-	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
+	BW->drawTextScreen(5,16,"in step:%d (%s) building depot %d",step, data[step], Util1::getBuilding(UnitTypes::Terran_Supply_Depot));
 	funcs[step]();
 	Util1::updateStatus();
 	
@@ -52,11 +52,11 @@ static Unit* getKerrigan(){
 	for each(Unit* u in Util1::getMyUnits(UnitTypes::Unknown)){
 		if (u->getEnergy()>10){
 			kerrigan=u;
-			Broodwar->printf("kerr %s", u->getType().isCloakable()?"C":"NG");
+			BW->printf("kerr %s", u->getType().isCloakable()?"C":"NG");
 			return kerrigan;
 		}
 	}
-	Broodwar->printf("oops, cannot find Kerrigan");
+	BW->printf("oops, cannot find Kerrigan");
 	return NULL;
 }
 static US step2moving;
@@ -94,7 +94,7 @@ static void step2(){
 			Util1::filterOrder(MYUNITS, 
 				Orders::PlayerGuard, step2moving);//with idle ones
 			if (step2moving.size()>0){
-				Broodwar->printf("attack %d", step2moving.size());
+				BW->printf("attack %d", step2moving.size());
 				Unit* e= * en.begin();
 				Position p=(e)->getPosition();
 				for each(Unit* u in step2moving)
@@ -110,7 +110,7 @@ static void step2(){
 			Util1::filterOrder(MYUNITS, Orders::PlayerGuard, army);
 			if (army.size()>0){
 			for each(Unit* u in army) u->attackMove(turrent1p);
-			Broodwar->printf("moving %d", army.size());
+			BW->printf("moving %d", army.size());
 			step2moving.insert(army.begin(), army.end());
 			}
 		}
@@ -129,7 +129,7 @@ static void step3(){
 static void step4(){
 	Util1::defenceDepartment();
 	Util1::productDepartment();
-	if(Broodwar->self()->minerals()>400 || Util1::getMyUnits(UnitTypes::Terran_SCV).size()>=Util1::svcPerMineral*
+	if(BW->self()->minerals()>400 || Util1::getMyUnits(UnitTypes::Terran_SCV).size()>=Util1::svcPerMineral*
 		Util1::getMyControlledMineralCnt()){
 			step=5;
 	}
