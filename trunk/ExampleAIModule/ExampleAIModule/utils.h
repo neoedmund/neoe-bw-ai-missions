@@ -6,7 +6,9 @@ using namespace BWAPI;
 class Array2D;
 
 #define US std::set<Unit*>
+#define BW Broodwar
 #define MYUNITS Broodwar->self()->getUnits()
+
 
 namespace Util1 {
 
@@ -32,22 +34,20 @@ namespace Util1 {
 	void train(UnitType type);
 	void build(UnitType type);
 	int getMyControlledMineralCnt();
-
+	void microAttack(US army);
+	
 	void defenceDepartment();
 	void productDepartment();
 	void repairDepartment();
 	void buildGas();
 	void havestGas();
 	bool isGasBuilt(Unit* u);
-	bool isHavestingGas(Unit* u);
 	void exportStaticData();
 
-	// explore
-	static Array2D* expMap;
-	static std::map<TilePosition,US> exploring;
-	static std::map<Unit*,US> attacking;
-	static std::map<Unit*,UnitType> building;
+
+
 #define EM(x,y) expMap->get(x,y)
+	int getBuilding(UnitType type);
 	void attack(Unit* enemy, US army);
 	void onUnitDestroy(Unit* unit);
 	void setExpMap();
@@ -58,10 +58,22 @@ namespace Util1 {
 	void filterOrder(US const &src, Order filter, US &addto);
 	US getEnemyUnits();
 	US getNeutralUnits();
+	void attackOnSight();
+	US getMyArmy();
+
+		// explore
+	static Array2D* expMap;
+	static std::map<TilePosition,US> exploring;
+	static std::map<Unit*,US> attacking;
+	static std::map<Unit*,UnitType> building;
+	static std::map<Unit*,int> buildingTime;
+	static std::set<std::pair<Unit*,Unit*>> microAttacking;
+	static std::set<TilePosition> builtLoc;
+	static int buidSpace=4;
 	//members
 	static Unit* commandCenter = NULL;
 	static double svcPerMineral = 1.7;
-	static double svcPerGas = 3;
+	static double svcPerGas = 2;
 	static double nearMineralDis = 500;
 	static std::map<Unit*, US> gasWorkers;
 
@@ -122,6 +134,7 @@ public:
 
 typedef void (*stepFunc)();
 
+class T00: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
 class T10: public MapHandler{void onFrame();};
 class T11: public MapHandler{void onFrame();};
 class T12: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};

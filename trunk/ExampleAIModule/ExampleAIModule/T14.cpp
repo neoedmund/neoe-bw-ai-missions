@@ -27,7 +27,7 @@ static const stepFunc funcs[2] = {step0, step1};
 static int step = 0;
 
 void T14::onFrame(){
-	Broodwar->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
+	BW->drawTextScreen(5,16,"in step:%d (%s)",step, data[step]);
 	funcs[step]();
 	Util1::setExpMap();
 };
@@ -57,8 +57,8 @@ static void attackOnSight(){
 			}
 			if(ar2.size()>0){
 				int w=enemy->getType().tileWidth()*32;
-				Broodwar->drawBox(CoordinateType::Map, p.x(),p.y() , p.x()  + w, p.y() + w, Colors::Red, false);
-				Broodwar->printf("attack %d (%d,%d) %d", enemy->getInitialHitPoints() ,p.x(), p.y(), ar2.size());
+				BW->drawBox(CoordinateType::Map, p.x(),p.y() , p.x()  + w, p.y() + w, Colors::Red, false);
+				BW->printf("attack %d (%d,%d) %d", enemy->getInitialHitPoints() ,p.x(), p.y(), ar2.size());
 			}
 		}else{
 			US nes =Util1::getNeutralUnits();
