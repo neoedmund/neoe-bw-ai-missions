@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 
+
 using namespace BWAPI;
 
 
@@ -22,36 +23,36 @@ namespace Util1 {
 
 	void makeIdelWork(){
 		US cmds  = getMyUnits(UnitTypes::Terran_Command_Center);
-		std::list<Unit*> orderedCmds;
-		orderedCmds.assign (  cmds.begin(), cmds.end());
+		if (cmds.size()==0)return;
 
 		for each(Unit* svc in getMyUnits(UnitTypes::Terran_SCV))
 		{
 			if (svc->getOrder()==Orders::PlayerGuard){
-				SortClass1::center=svc;
-				orderedCmds.sort(SortClass1::sortPredicate);
-				for each(Unit* cmd in orderedCmds){
-					Unit* mineral = getNearestUnit(cmd, 100000, UnitTypes::Resource_Mineral_Field,
-						BW->getAllUnits());	
-					if (mineral){
-						svc->rightClick(mineral);
-						break;
-					}
+				Unit* nearcc = getNearestUnit(svc, nearMineralDis, UnitTypes::Terran_Command_Center,
+					cmds);	
+				Unit* mineral = getNearestUnit(nearcc, nearMineralDis, UnitTypes::Resource_Mineral_Field,
+					BW->getAllUnits());	
+				if (mineral){
+					svc->rightClick(mineral);
 				}
 			}
 		}
 	}
+
 	US getAirAttacker(){
 		US a;
 		for each(Unit* u in MYUNITS){
+			if (u->getType()==UnitTypes::Unknown)continue;
 			const WeaponType* wt=u->getType().airWeapon();
 			if (wt && wt->damageAmount()>0)a.insert(u);
 		}
 		return a;
 	}
+
 	US getGroundAttacker(){
 		US a;
 		for each(Unit* u in MYUNITS){
+			if (u->getType()==UnitTypes::Unknown)continue;
 			if (u->getType().isWorker())continue;
 			const WeaponType* wt=u->getType().groundWeapon();
 			if (wt && wt->damageAmount()>0)a.insert(u);
@@ -62,8 +63,10 @@ namespace Util1 {
 		US a;
 		US air=getAirAttacker();
 		US gd=getGroundAttacker();
-		a.insert(air.begin(), air.end());
-		a.insert(gd.begin(), gd.end());
+		if (air.size()>0)
+			a.insert(air.begin(), air.end());
+		if (gd.size()>0)
+			a.insert(gd.begin(), gd.end());
 		return a;
 	}
 	US getAirEnemyInDistance(Unit* c, double disMax ,double disMin){
@@ -98,7 +101,7 @@ namespace Util1 {
 			}
 			if (te){
 				microAttacking.insert(std::make_pair(u,te));
-				BW->printf("attack %x %x (%d)", u,te,microAttacking.size());
+				//BW->printf("attack [%x] [%x] (%d)", u,te,microAttacking.size());
 				u->attackUnit(te);
 				return;
 			}
@@ -116,7 +119,7 @@ namespace Util1 {
 			}
 			if (te){ 
 				microAttacking.insert(std::make_pair(u,te));
-				BW->printf("attack %x %x (%d)", u,te,microAttacking.size());
+				//BW->printf("attack [%x] [%x] (%d)", u,te,microAttacking.size());
 				u->attackUnit(te);
 				return;
 			}
@@ -145,9 +148,17 @@ namespace Util1 {
 				attack(e1, idle);
 			}
 		}
-		
-	}
 
+	}
+	void moveMedic(){
+		US idle;
+		filterOrder(getMyUnits(UnitTypes::Terran_Medic), Orders::Medic, idle);
+		US ms = getMyUnits(UnitTypes::Terran_Marine);
+		for each(Unit* u in idle) {
+			Unit* m = getNearestUnit(u,10000,UnitTypes::Terran_Marine, ms);		
+			u->rightClick(m);
+		}
+	}
 	US getMyUnits(UnitType type){
 		US us;
 		for each(Unit* u in MYUNITS){if (u->getType()==type){
@@ -195,7 +206,7 @@ namespace Util1 {
 						int svcCnt = getUnitsNearCenter(cmdCenter,nearMineralDis,
 							UnitTypes::Terran_SCV, BW->getAllUnits()).size();
 						if (mineralCnt*svcPerMineral>svcCnt)	{
-							BW->printf("train SVC by %x (S%d/M%d)", cmdCenter, svcCnt, mineralCnt);
+							BW->printf("train SVC by [%x] (S%d/M%d)", cmdCenter, svcCnt, mineralCnt);
 							cmdCenter->train(UnitTypes::Terran_SCV);
 						}
 					}}}
@@ -244,7 +255,7 @@ namespace Util1 {
 		return score;
 	}
 	TilePosition getBuildLocation(UnitType type){
-		
+
 		int width=type.tileWidth();
 		int height=type.tileHeight();
 		double maxScore=-1000000000;
@@ -314,7 +325,7 @@ namespace Util1 {
 		TilePosition p=getBuildLocation(type);
 		if (p==TilePosition(-1,-1)){
 			BW->printf("cannot find place to build %s", type.getName().c_str());
-			buidSpace++;
+			//buidSpace++;
 		}else{
 			US SCVs = getMyUnits(UnitTypes::Terran_SCV);
 			US ava;
@@ -322,11 +333,11 @@ namespace Util1 {
 			Unit* u = getNearestUnit(Position(p), 1000000, UnitTypes::Terran_SCV, ava);
 			if(u){	
 
-				BW->printf("let %x to build %s at (%d,%d)", u, type.getName().c_str(),p.x(), p.y());
+				BW->printf("let [%x] to build %s at (%d,%d)", u, type.getName().c_str(),p.x(), p.y());
 				Position pp=Position(p);
 				BW->drawBox(CoordinateType::Map, pp.x(), pp.y(), pp.x()+type.tileWidth()*32, pp.y()+type.tileHeight()*32,
 					Colors::Green,false);
-				builtLoc.insert(p);
+				//builtLoc.insert(p);
 				building.insert(std::make_pair(u, type));
 				buildingTime.insert(std::make_pair(u, BW->getFrameCount()));
 				if (!visible(p,type.tileWidth(), type.tileHeight())) u->rightClick(Position(p.x()*32,p.y()*32));
@@ -341,17 +352,32 @@ namespace Util1 {
 	void train(UnitType type){
 		if (BW->self()->minerals()<type.mineralPrice()
 			|| BW->self()->gas()<type.gasPrice()) return;
-		const UnitType* builder = type.whatBuilds().first;	
+		const UnitType* builder = type.whatBuilds().first;
+		if (builder==NULL){BW->printf("bug2");return;}
 		int v =type.whatBuilds().second;
 		if (v==0) return;
-		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+		for each(Unit* u in getMyUnits(*builder))
 		{
-			if ( (*i)->getType()==*builder  && !(*i)->isTraining()){
-				(*i)->train(type);
+			if (!u->isTraining()){
+				u->train(type);
 			}
 		}	
 	}
-
+	bool buildAddon(UnitType addon ,size_t maxcnt, UnitType body){
+		US bodys = getMyUnits(body);
+		US addons =getMyUnits(addon);
+		if (addons.size()<bodys.size()&&addons.size()<maxcnt){
+			if (BW->self()->minerals()<addon.mineralPrice()
+				|| BW->self()->gas() <addon.gasPrice()) return false;
+			for each(Unit* b in bodys){
+				if (b->getAddon()==NULL){
+					b->buildAddon(addon);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	bool buildEnough(UnitType type, size_t count){
 		US us = getMyUnits(type);
@@ -382,7 +408,7 @@ namespace Util1 {
 			US workers = gasWorkers[refinery];
 			/*US dead;
 			for each(Unit* worker in workers){
-				if (!worker->is()) dead.insert(worker);
+			if (!worker->is()) dead.insert(worker);
 			}
 			workers=US_diff(workers, dead);
 			*/
@@ -401,14 +427,14 @@ namespace Util1 {
 				if(scv){	
 					scv->rightClick(refinery);
 					gasWorkers[refinery].insert(scv);
-					BW->printf("add gas worker %x", scv);
+					BW->printf("add gas worker [%x]", scv);
 				}else{
 					BW->printf("cannot found near SVC to havest gas");
 				}
 			}
 		}
 	}
-	
+
 	void buildGas(){
 		if (BW->self()->minerals()<100)return;
 		for each(Unit* cmdCenter in getMyUnits(UnitTypes::Terran_Command_Center)){				
@@ -571,26 +597,49 @@ namespace Util1 {
 		}
 	}
 	void updateBuilding(){
+		if (building.size()==0)return;
 		std::map<Unit* ,UnitType>::iterator it;
-
+		US del;
 		for ( it=building.begin() ; it != building.end(); it++ ){
 			Unit* u=(*it).first;
-			if ((BW->getFrameCount()-buildingTime[u]>50)&&(!u->exists()
+			if (u&&(BW->getFrameCount()-buildingTime[u]>50)&&(!u->exists()
 				||u->getOrder()==Orders::MoveToGas
 				||u->getOrder()==Orders::MoveToMinerals
 				||u->getOrder()==Orders::PlayerGuard
 				)){
-					BW->printf("remove building %x for order %s",u, u->getOrder().getName().c_str());
-					building.erase(u);
-					buildingTime.erase(u);
+					BW->printf("remove building [%x] for order %s",u, u->getOrder().getName().c_str());
+					del.insert(u);
 			}
 		}
-
+		for each(Unit* u in del){
+			building.erase(u);
+			buildingTime.erase(u);
+		}
 	}
-
+	void updateRepairing(){
+		if (repairing.size())return;
+		std::map<Unit* ,Unit*>::iterator it;
+		US del;
+		for ( it=repairing.begin() ; it != repairing.end(); it++ ){
+			Unit* u=(*it).first;
+			if (u&&(BW->getFrameCount()-buildingTime[u]>50)&&(!u->exists()
+				||u->getOrder()==Orders::MoveToGas
+				||u->getOrder()==Orders::MoveToMinerals
+				||u->getOrder()==Orders::PlayerGuard
+				)){
+					BW->printf("remove repairing [%x] for order %s",u, u->getOrder().getName().c_str());
+					del.insert(u);
+			}
+		}
+		for each(Unit* u in del){
+			repairing.erase(u);
+			repairingTime.erase(u);
+		}
+	}
 	void updateStatus(){
 		setExpMap();
 		updateBuilding();
+		updateRepairing();
 	}
 	void setExpMap(){
 		for(int x=0; x<BW->mapWidth();x++){
@@ -604,17 +653,19 @@ namespace Util1 {
 				}
 			}
 		}
-		US en = getEnemyUnits();
-		if (en.size()>0){//stop exploring when enemy seen
-			std::map<TilePosition,US>::iterator it;
-			for ( it=exploring.begin() ; it != exploring.end(); it++ ){
-				for each(Unit* u in (*it).second)
-					u->stop();
+	
+		if (exploring.size()>0){
+			US en = BW->enemy()->getUnits();
+			if (en.size()>0){//stop exploring when enemy seen
+				std::map<TilePosition,US>::iterator it;
+				for ( it=exploring.begin() ; it != exploring.end(); it++ ){
+					for each(Unit* u in (*it).second)
+						u->stop();
 
+				}
+				exploring.clear();
 			}
-			exploring.clear();
 		}
-
 	}
 
 	void initExpMap(){
@@ -641,7 +692,7 @@ namespace Util1 {
 					||EM(x+1,y-1)
 					||EM(x-1,y+1)
 					)){
-						
+
 						TilePosition p2=TilePosition(x,y);
 						double  dis=0;
 						for each(Unit* u in army) dis+=u->getDistance(Position(p2));
@@ -666,6 +717,7 @@ namespace Util1 {
 		}else{
 			for each(Unit* u in a) u->attackMove((*ens.begin())->getPosition());
 		}
+		attacking.erase(unit);
 	}
 	void bordExplore(US army1){
 		US army ;
@@ -690,6 +742,10 @@ namespace Util1 {
 	}
 	void upgarade(UpgradeType ut){
 		const UnitType* ft = ut.whatUpgrades();
+		if(ft==NULL){
+			BW->printf("bug1");
+			return;
+		}
 		Unit* f=getMyUnit(*ft);
 		if(f){
 			if(BW->self()->minerals()>=ut.mineralPriceBase()
@@ -728,14 +784,27 @@ namespace Util1 {
 		}
 		return t;
 	}
+	bool MAP_findInSecond(std::map<Unit*,Unit*> m, Unit* u){
+		for each(std::pair<Unit*,Unit*> p in m){
+			if (p.second==u)return true;
+		}
+		return false;
+	}
 	void repairDepartment(){
+		US idleScv;
+		filterOrder(getMyUnits(UnitTypes::Terran_SCV),Orders::MoveToMinerals, idleScv);
 		if (BW->self()->minerals()>100){
 			for each(Unit* u in MYUNITS){
-				if (u->getType().isBuilding() && u->getHitPoints()<u->getInitialHitPoints()){
-					Unit* scv=getNearestUnit(u->getPosition(), 100000, UnitTypes::Terran_SCV,MYUNITS);
-					if (scv && !scv->isConstructing()){
-						scv->rightClick(u);
-					}
+				if(MAP_findInSecond(repairing, u))continue;
+				UnitType t=u->getType();
+				if ((t.isBuilding()||t.isRobotic()||t.isMechanical())
+					&& u->getHitPoints()<u->getInitialHitPoints()){
+						Unit* scv=getNearestUnit(u->getPosition(), 100000, UnitTypes::Terran_SCV, idleScv);
+						if (scv && !scv->isConstructing()){
+							repairing.insert(std::make_pair(scv, u));
+							repairingTime.insert(std::make_pair(scv, BW->getFrameCount()));
+							scv->rightClick(u);
+						}
 				}
 			}
 		}
