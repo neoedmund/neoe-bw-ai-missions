@@ -30,6 +30,7 @@ namespace Util1 {
 			if (svc->getOrder()==Orders::PlayerGuard){
 				Unit* nearcc = getNearestUnit(svc, nearMineralDis, UnitTypes::Terran_Command_Center,
 					cmds);	
+				if (nearcc==NULL)continue;
 				Unit* mineral = getNearestUnit(nearcc, nearMineralDis, UnitTypes::Resource_Mineral_Field,
 					BW->getAllUnits());	
 				if (mineral){
