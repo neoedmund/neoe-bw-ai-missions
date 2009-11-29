@@ -60,13 +60,18 @@ namespace Util1 {
 	US getNeutralUnits();
 	void attackOnSight();
 	US getMyArmy();
-
+	void moveMedic();
+	bool buildAddon(UnitType addon ,size_t maxcnt, UnitType body);
+	
 		// explore
+	
 	static Array2D* expMap;
 	static std::map<TilePosition,US> exploring;
 	static std::map<Unit*,US> attacking;
 	static std::map<Unit*,UnitType> building;
 	static std::map<Unit*,int> buildingTime;
+	static std::map<Unit*,Unit*> repairing;
+	static std::map<Unit*,int> repairingTime;
 	static std::set<std::pair<Unit*,Unit*>> microAttacking;
 	static std::set<TilePosition> builtLoc;
 	static int buidSpace=4;
@@ -119,7 +124,7 @@ class MapHandler{
 public:
 	MapHandler(){};
 	virtual void onFrame(){};
-	virtual bool onSendText(std::string text){return true;};
+	virtual bool onSendText(std::string text){return false;};
 	virtual void onUnitCreate(BWAPI::Unit* unit){};
 	virtual void onUnitDestroy(BWAPI::Unit* unit){};
 	virtual void onUnitMorph(BWAPI::Unit* unit){};
@@ -134,7 +139,11 @@ public:
 
 typedef void (*stepFunc)();
 
-class T00: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
+class T00: public MapHandler{
+	void onFrame();
+	void onUnitDestroy(BWAPI::Unit* unit);
+	bool onSendText(std::string text);
+};
 class T10: public MapHandler{void onFrame();};
 class T11: public MapHandler{void onFrame();};
 class T12: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};

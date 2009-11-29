@@ -14,7 +14,7 @@ Objectives
 */
 #include <BWAPI.h>
 #include "utils.h"
-
+#include "DropMission.h"
 
 using namespace BWAPI;
 
@@ -30,7 +30,7 @@ static void step5();
 static const char* data[6] = {"0 init",
 "1 meet kerrigan at (149,1233)",
 "2 destroy Terran Missile Turret(2112,800)",
-"3 kerrigan  cloak and goto command center (2720,464), then kerrigan and raynor go to safe base(2797,534)",
+"3 kerrigan  cloak and goto command center (2720,464), then kerrigan and raynor go to safe base(2656,240)",
 "4 train SVC",
 "5 denfence and destroy conferederate base"};
 static Position turrent1p = Position(1900,750);
@@ -38,7 +38,8 @@ static const stepFunc funcs[6] = {step0, step1, step2, step3, step4, step5};
 static int step = 0;
 
 void T15::onFrame(){
-	BW->drawTextScreen(5,16,"in step:%d (%s) building depot %d",step, data[step], Util1::getBuilding(UnitTypes::Terran_Supply_Depot));
+	BW->drawTextScreen(5,16,"in step:%d (%s) building depot %d/%d",step, data[step], Util1::getBuilding(UnitTypes::Terran_Supply_Depot),
+		Util1::building.size());
 	funcs[step]();
 	Util1::updateStatus();
 	
@@ -121,7 +122,7 @@ static void step3(){
 	Unit* cc = Util1::getMyUnit(UnitTypes::Terran_Command_Center);
 	if (cc){
 		US heroes = Util1::getMyUnits(UnitTypes::Unknown);
-		for each(Unit* u in heroes) u->attackMove(Position(2797,534));
+		for each(Unit* u in heroes) u->attackMove(Position(2656,240));
 		getKerrigan()->decloak();
 		step=4;
 	}
@@ -133,13 +134,14 @@ static void step4(){
 		Util1::getMyControlledMineralCnt()){
 			step=5;
 	}
-	attackOnSight();
+	Util1::attackOnSight();
 }
+static DropMission  dropMission = DropMission(Position(2752,2592), 3) ;
 static void step5(){
 	Util1::defenceDepartment();
 	Util1::productDepartment();
 	Util1::repairDepartment();
-
+	
 	Util1::buildEnough(UnitTypes::Terran_Engineering_Bay,1);
 	Util1::buildEnough(UnitTypes::Terran_Academy,1);
 	Util1::buildEnough(UnitTypes::Terran_Barracks,4);			
@@ -147,49 +149,16 @@ static void step5(){
 	Util1::upgarade(UpgradeTypes::U_238_Shells);
 	Util1::upgarade(UpgradeTypes::Terran_Infantry_Weapons);
 	Util1::upgarade(UpgradeTypes::Terran_Infantry_Armor);
+	Util1::buildAddon(UnitTypes::Terran_Control_Tower,1, UnitTypes::Terran_Starport);
+	Util1::buildAddon(UnitTypes::Terran_Machine_Shop,1, UnitTypes::Terran_Factory);
 
 	int rd =rand() % 100;
 	if (rd<20)	Util1::trainEnough(UnitTypes::Terran_Marine,50);
 	else if (rd<40)	Util1::trainEnough(UnitTypes::Terran_Firebat,50);
 	else if (rd<60)	Util1::trainEnough(UnitTypes::Terran_Wraith,100);
 	else Util1::trainEnough(UnitTypes::Terran_Dropship,3);
-
-	attackOnSight();
-}
-US getAirAttacker(){
-	US a;
-	Util1::filterOrder(Util1::getMyUnits(UnitTypes::Terran_Marine), Orders::PlayerGuard, a);
-	Util1::filterOrder(Util1::getMyUnits(UnitTypes::Terran_Wraith), Orders::PlayerGuard, a);
-	return a;
-}
-US getGroundAttacker(){
-	US a;
-	Util1::filterOrder(Util1::getMyUnits(UnitTypes::Terran_Firebat), Orders::PlayerGuard, a);
-	Util1::filterOrder(Util1::getMyUnits(UnitTypes::Terran_Vulture), Orders::PlayerGuard, a);
-	return a;
-}
-US getMyArmy(){
-	US a;
-	US air=getAirAttacker();
-	US gd=getGroundAttacker();
-	a.insert(air.begin(), air.end());
-	a.insert(gd.begin(), gd.end());
-	return a;
-}
-static void attackOnSight(){
-	US en = Util1::getEnemyUnits();
 	
-	if (en.size()>0){
-		Unit* e1 = *en.begin();
-		US army;
-		if (e1->getType().isFlyer()){
-			army=getAirAttacker();
-		}else{
-			army=getMyArmy();
-		}
-		if (army.size()>0){
-		for each(Unit* u in army) u->attackMove(e1->getPosition());
-		Util1::attack(e1, army);
-		}
-	}
+	Util1::attackOnSight();
+	Util1::microAttack(Util1::getMyArmy());
+	dropMission.run();
 }

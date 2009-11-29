@@ -132,8 +132,8 @@ bool MissionsAIModule::onSendText(std::string text)
 		showForces();
 		return false;
 	}  
+	if (mh->onSendText(text))return true;
 	BW->printf("You typed '%s'!",text.c_str());
-	mh->onSendText(text);
 	return false;
 }
 
