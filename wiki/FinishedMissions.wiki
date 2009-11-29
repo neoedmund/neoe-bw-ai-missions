@@ -1,11 +1,14 @@
 #summary Finished missions
+
+[T00] : a general helper for terran
+
 ||  || || Terran Campaign:   Episode I || || ||
 ||  ||   Tutorial: ||  Boot Camp   || *Completed*    || [T10] ||
 ||  1. ||  Terran mission 1: ||  Wasteland   || *Completed* || [T11]  ||
 ||  2. ||  Terran mission 2: ||  Backwater Station  || *Completed* || [T12]    ||
 ||  3. ||  Terran mission 3: ||  Desperate Alliance  || *Completed* || [T13]    ||
-||  4. ||  Terran mission 4: ||  The Jacobs Installation                 || || ||
-||  5. ||  Terran mission 5: ||  Revolution                              || || ||
+||  4. ||  Terran mission 4: ||  The Jacobs Installation   || *lost my way in dungeon* || [T14]  ||
+||  5. ||  Terran mission 5: ||  Revolution           || *dropship method not implemented * || [T15] ||
 ||  6. ||  Terran mission 6: ||  Norad II                                || || ||
 ||  7. ||  Terran mission 7: ||  The Trump Card                          || || ||
 ||  8. ||  Terran mission 8: ||  The Big Push                            || || ||
