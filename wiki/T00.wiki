@@ -1,0 +1,18 @@
+#summary a general helper for terran
+
+= Introduction =
+
+AI help you do less intellegental things.
+
+
+= Details =
+
+type command in chat to enable/disable functions:
+
+ * mine: mining and build supply depot
+ * build: build some buildings
+ * train: train some army
+ * exp: explore
+ * att: attack when enemy on sight
+
+It makes the missions leisure.
