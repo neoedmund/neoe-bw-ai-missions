@@ -11,7 +11,7 @@ using namespace BWAPI;
 //Util::Logger* log = new Util::FileLogger("neoe-ai", Util::LogLevel::MicroDetailed);
 namespace Util1 {
 	Unit* getMyUnit(UnitType type){
-		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+		for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 			if ((*i)->getType()==type){
 				return *i;
@@ -200,6 +200,7 @@ namespace Util1 {
 		if (me->minerals()>=50 
 			&& me->supplyUsed()<me->supplyTotal()){
 				for each(Unit* cmdCenter in getMyUnits(UnitTypes::Terran_Command_Center)){
+					if (!cmdCenter->isCompleted())continue;
 					if (cmdCenter->getTrainingQueue().size()==0){
 						int mineralCnt = getUnitsNearCenter(cmdCenter,
 							nearMineralDis,UnitTypes::Resource_Mineral_Field, 
@@ -262,7 +263,7 @@ namespace Util1 {
 		double maxScore=-1000000000;
 		TilePosition res=TilePosition(-1,-1);
 		int space = buidSpace;
-		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+		for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 
 			if ((*i)->getType().isBuilding()){
@@ -288,7 +289,7 @@ namespace Util1 {
 	bool visible(TilePosition p, int width, int height){
 		for (int x=p.x();x<=p.x()+width;x++){
 			for (int y=p.y();y<=p.y()+height;y++){
-				if (!BW->visible(x,y)){
+				if (!BW->isVisible(x,y)){
 					return false;
 				}
 			}
@@ -645,7 +646,7 @@ namespace Util1 {
 	void setExpMap(){
 		for(int x=0; x<BW->mapWidth();x++){
 			for(int y=0; y<BW->mapHeight();y++){
-				if(!expMap->get(x,y) && BW->visible(x,y)) {
+				if(!expMap->get(x,y) && BW->isVisible(x,y)) {
 					expMap->set(x,y,true);
 					//stop exploring visited spot
 					for each(Unit* u in exploring[TilePosition(x,y)])
@@ -683,7 +684,7 @@ namespace Util1 {
 		double min=1e+20;
 		for (int x=0;x<BW->mapWidth();x++)
 			for (int y=0;y<BW->mapHeight();y++)
-				if (!EM(x,y)&&BW->walkable(x*4,y*4)&&
+				if (!EM(x,y)&&BW->isWalkable(x*4,y*4)&&
 					(EM(x-1,y)
 					||EM(x+1,y)
 					||EM(x,y-1)
@@ -843,7 +844,7 @@ US US_diff(US const &src, US const &b){
 	US a;
 	for each(Unit* u in src) a.insert(u);
 	for each(Unit* u in b){
-		US::iterator i = a.find(u);
+		US::const_iterator i = a.find(u);
 		if(i!=a.end()) a.erase(i);
 	}
 	return a;

@@ -87,7 +87,7 @@ static void step2(){
 		Util1::filterOrder(marines, Orders::PlayerGuard, army);
 		Util1::filterOrder(firebats, Orders::PlayerGuard, army);
 	if (BW->enemy()->getUnits().size()>0){
-		US::iterator enemyi=BW->enemy()->getUnits().begin();
+		US::const_iterator enemyi=BW->enemy()->getUnits().begin();
 		Unit* enemy = *enemyi;
 		if (army.size()>0){
 			Util1::attack(enemy, army);

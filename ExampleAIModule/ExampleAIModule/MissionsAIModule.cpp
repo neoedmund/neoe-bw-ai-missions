@@ -142,7 +142,7 @@ void MissionsAIModule::drawStats()
 	US myUnits = MYUNITS;
 	BW->drawTextScreen(5,32,"I have %d units:",myUnits.size());
 	std::map<UnitType, int> unitTypeCounts;
-	for(US::iterator i=myUnits.begin();i!=myUnits.end();i++)
+	for(US::const_iterator i=myUnits.begin();i!=myUnits.end();i++)
 	{
 		if (unitTypeCounts.find((*i)->getType())==unitTypeCounts.end())
 		{
