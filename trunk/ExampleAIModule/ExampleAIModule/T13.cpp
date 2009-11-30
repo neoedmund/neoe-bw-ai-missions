@@ -64,7 +64,7 @@ static void attackOnSight(){
 	US eu = BW->enemy()->getUnits();
 	if (eu.size()>0){
 		int md= 200*(am.size()+af.size()+av.size()-eu.size());
-		US::iterator enemyi=eu.begin();
+		US::const_iterator enemyi=eu.begin();
 		Unit* enemy = *enemyi;
 		int go = 0;
 		if(enemy->getType().isFlyer())

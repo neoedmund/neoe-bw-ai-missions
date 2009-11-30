@@ -63,7 +63,7 @@ void T10::onFrame(){
 				gasWorkerCnt=1;
 				step=2;
 			}else{
-				for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+				for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 				{
 					if ( (*i)->getType().isWorker() ){
 						if (!visible(p,type.tileWidth(), type.tileHeight())) (*i)->rightClick(Position(p.x()*32,p.y()*32));
@@ -80,7 +80,7 @@ void T10::onFrame(){
 		BWAPI::Unit* refinery=getRefinery();
 		if (refinery!=NULL){
 
-			for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+			for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 			{
 				if ( (*i)->getType().isWorker() ){
 
@@ -101,7 +101,7 @@ void T10::onFrame(){
 
 };
 static BWAPI::TilePosition getGasLoc(){
-	for(US::iterator i=BW->getGeysers().begin();i!=BW->getGeysers().end();i++)
+	for(US::const_iterator i=BW->getGeysers().begin();i!=BW->getGeysers().end();i++)
 	{
 		BWAPI::TilePosition p=(*i)->getTilePosition();
 		std::set<BWAPI::Unit*> units = BWAPI::BW->unitsOnTile(p.x(), p.y());
@@ -115,7 +115,7 @@ static BWAPI::TilePosition getGasLoc(){
 	return BWAPI::TilePosition(-1,-1);
 }
 static BWAPI::Unit* getRefinery(){
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Terran_Refinery&&(*i)->isCompleted())
 			return (*i);
@@ -129,7 +129,7 @@ static void buildDepot(){
 	if (p==BWAPI::TilePosition(-1,-1)){
 		BW->printf("cannot find place to build depot");
 	}else{
-		for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+		for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 		{
 			if ( (*i)->getType().isWorker() ){
 				//BigAI::setCommand(*i, "build", p,UnitTypes::Terran_Supply_Depot); 
@@ -143,7 +143,7 @@ static void buildDepot(){
 static bool visible(BWAPI::TilePosition p, int width, int height){
 	for (int x=p.x();x<=p.x()+width;x++){
 		for (int y=p.y();y<=p.y()+height;y++){
-			if (!BW->visible(x,y)){
+			if (!BW->isVisible(x,y)){
 				return false;
 			}
 		}
@@ -158,7 +158,7 @@ static BWAPI::TilePosition getBuildDepotLoc()
 	UnitType type= UnitTypes::Terran_Supply_Depot;
 	int width=type.tileWidth();
 	int height=type.tileHeight();
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 
 		if ((*i)->getType().isBuilding()){
@@ -183,7 +183,7 @@ static bool canBuildHere(BWAPI::TilePosition position, BWAPI::UnitType type)
 
 
 static void makeIdelWork(){
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		Unit* mineral = getNextMineral();
 		if (mineral && (*i)->getType().isWorker() && (*i)->getOrder()==Orders::PlayerGuard){
@@ -196,13 +196,13 @@ BWAPI::Unit* getNextMineral(){
 	int total =  BW->getMinerals().size();
 	if (total==0)return NULL;
 	nextMineral=(nextMineral++)% total; 
-	US::iterator i=BW->getMinerals().begin();	
+	US::const_iterator i=BW->getMinerals().begin();	
 	return *i;
 }
 static Unit* commandCenter=NULL;
 BWAPI::Unit* getCommandCenter(){
 	if (commandCenter) return commandCenter;
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Terran_Command_Center){
 			commandCenter=*i;
@@ -213,7 +213,7 @@ BWAPI::Unit* getCommandCenter(){
 }
 static int getSCVCnt(){
 	int cnt=0;
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if ((*i)->getType().isWorker()){
 			cnt++;
@@ -223,7 +223,7 @@ static int getSCVCnt(){
 }
 static int getMineralCnt(){
 	int cnt=0;
-	for(US::iterator i=BW->getAllUnits().begin();i!=BW->getAllUnits().end();i++)
+	for(US::const_iterator i=BW->getAllUnits().begin();i!=BW->getAllUnits().end();i++)
 	{
 		if ((*i)->getType()==UnitTypes::Resource_Mineral_Field){
 			cnt++;

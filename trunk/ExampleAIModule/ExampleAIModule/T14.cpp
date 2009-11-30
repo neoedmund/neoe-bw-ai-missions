@@ -49,7 +49,7 @@ static void attackOnSight(){
 	Util1::filterOrder(army, Orders::PlayerGuard,ar2);
 	if (ar2.size()>0){
 		if (eu.size()>0){
-			US::iterator enemyi=eu.begin();
+			US::const_iterator enemyi=eu.begin();
 			Unit* enemy = *enemyi;
 			Position p = enemy->getPosition();
 			for each(Unit* u in ar2){

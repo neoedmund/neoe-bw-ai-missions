@@ -69,7 +69,7 @@ static void step3(){}
 static void moveMarine(){
 	Unit* c = Util1::getCommandCenter();
 		
-	for(US::iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
+	for(US::const_iterator i=MYUNITS.begin();i!=MYUNITS.end();i++)
 	{
 		if (c && (*i)->getType()!=UnitTypes::Terran_SCV && (*i)->getOrder()==Orders::PlayerGuard){
 			(*i)->attackMove(c->getPosition());
