@@ -9,11 +9,11 @@
 ||  3. ||  Terran mission 3: ||  Desperate Alliance  || *Completed* || [T13]    ||
 ||  4. ||  Terran mission 4: ||  The Jacobs Installation   || *lost my way in dungeon* || [T14]  ||
 ||  5. ||  Terran mission 5: ||  Revolution           || *dropship method not implemented * || [T15] ||
-||  6. ||  Terran mission 6: ||  Norad II                                || || ||
-||  7. ||  Terran mission 7: ||  The Trump Card                          || || ||
-||  8. ||  Terran mission 8: ||  The Big Push                            || || ||
-||  9. ||  Terran mission 9: ||  New Gettysberg                          || || ||
-|| 10. ||  Terran mission 10: ||  The Hammer Falls                       || || ||
+||  6. ||  Terran mission 6: ||  Norad II                                || assistant by T00 || ||
+||  7. ||  Terran mission 7: ||  The Trump Card                          || assistant by T00 || ||
+||  8. ||  Terran mission 8: ||  The Big Push                            || assistant by T00 || ||
+||  9. ||  Terran mission 9: ||  New Gettysberg                          || assistant by T00 || ||
+|| 10. ||  Terran mission 10: ||  The Hammer Falls                       || assistant by T00(only mining department)  || ||
 || || || Zerg Campaign:   Episode II        || || ||
 ||   1. ||  Zerg mission 1: ||  Among the Ruins                            || || ||
 ||   2. ||  Zerg mission 2: ||  Egression                                  || || ||
