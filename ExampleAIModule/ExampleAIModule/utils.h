@@ -81,6 +81,8 @@ namespace Util1 {
 	static double svcPerGas = 2;
 	static double nearMineralDis = 500;
 	static std::map<Unit*, US> gasWorkers;
+	
+
 
 };
 class Array2D
@@ -143,6 +145,10 @@ class T00: public MapHandler{
 	void onFrame();
 	void onUnitDestroy(BWAPI::Unit* unit);
 	bool onSendText(std::string text);
+	virtual void trains();
+	virtual void builds();
+	void step1();
+	void step0();
 };
 class T10: public MapHandler{void onFrame();};
 class T11: public MapHandler{void onFrame();};
@@ -150,6 +156,8 @@ class T12: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit
 class T13: public MapHandler{void onFrame();};
 class T14: public MapHandler{void onFrame();};
 class T15: public MapHandler{void onFrame();void onUnitDestroy(BWAPI::Unit* unit);};
+class T110: public T00 {void trains();void builds();};
+
 
 class SortClass1{
 public:

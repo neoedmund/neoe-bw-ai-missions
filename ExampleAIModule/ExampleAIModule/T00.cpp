@@ -13,7 +13,7 @@ static void step1();
 
 
 static const char* data[] = {"0 init","1 do"};
-static const stepFunc funcs[] = {step0, step1};
+
 static int step = 0;
 
 static bool doMine=true;
@@ -29,7 +29,7 @@ void T00::onFrame(){
 		doTrain?"train":"",
 		doAttack?"attack":"",
 		doExplore?"explore":"");
-	funcs[step]();
+	if (step==0)step0();else step1();
 	Util1::updateStatus();	
 };
 void T00::onUnitDestroy(BWAPI::Unit* unit){
@@ -44,31 +44,41 @@ bool T00::onSendText(std::string text){
 	else return false;
 	return true;
 }
-void step0(){
-	Util1::initExpMap();
-	step=1;
-}
-void step1(){
-
-	if (doMine)Util1::productDepartment();
-	if (doBuild){
-		Util1::buildEnough(UnitTypes::Terran_Engineering_Bay,1);
-		Util1::buildEnough(UnitTypes::Terran_Missile_Turret,1);
-		Util1::buildEnough(UnitTypes::Terran_Academy,1);
-		Util1::buildEnough(UnitTypes::Terran_Barracks,4);			
-		Util1::buildEnough(UnitTypes::Terran_Factory,2);
-		Util1::upgarade(UpgradeTypes::U_238_Shells);
-		Util1::upgarade(UpgradeTypes::Terran_Infantry_Weapons);
-		Util1::upgarade(UpgradeTypes::Terran_Infantry_Armor);
-	}
-	if (doTrain){
-		int rd =rand() % 60;
+void  T00::trains(){
+	int rd =rand() % 60;
 		if (rd<10)	Util1::trainEnough(UnitTypes::Terran_Marine,100);
 		else if (rd<20)	Util1::trainEnough(UnitTypes::Terran_Firebat,100);
 		else if (rd<30)	Util1::trainEnough(UnitTypes::Terran_Wraith,100);
 		else if (rd<40)	Util1::trainEnough(UnitTypes::Terran_Vulture,100);
 		else if (rd<50)	Util1::trainEnough(UnitTypes::Terran_Medic,30);
 		else Util1::trainEnough(UnitTypes::Terran_Dropship,2);
+}
+
+void T00::step0(){
+	Util1::initExpMap();
+	step=1;
+}
+void T00::builds(){
+Util1::buildEnough(UnitTypes::Terran_Engineering_Bay,1);
+		Util1::buildEnough(UnitTypes::Terran_Missile_Turret,1);
+		Util1::buildEnough(UnitTypes::Terran_Academy,1);
+			
+		Util1::buildEnough(UnitTypes::Terran_Factory,4);
+		Util1::buildEnough(UnitTypes::Terran_Starport,4);
+		Util1::upgarade(UpgradeTypes::Terran_Vehicle_Plating);
+		Util1::upgarade(UpgradeTypes::Terran_Vehicle_Weapons);		
+		Util1::upgarade(UpgradeTypes::Terran_Ship_Plating);
+		Util1::upgarade(UpgradeTypes::Terran_Ship_Weapons);
+}
+void T00::step1(){
+
+	if (doMine)Util1::productDepartment();
+	if (doBuild){
+		builds();
+		
+	}
+	if (doTrain){
+		trains();
 	}
 	if (doExplore){
 		US idle;
