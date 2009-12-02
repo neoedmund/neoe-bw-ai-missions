@@ -42,8 +42,9 @@ void MissionsAIModule::setMapHandler(){
 	_MF("T1) Wasteland",T11);
 	_MF("T2) Backwater Station",T12);
 	_MF("T3) Desperate Alliance",T13);
-	_MF("Untitled Scenario",T14);
+	_MF("Untitled Scenario",T00);
 	_MF("T5) The Antigan Revolt",T15);
+	_MF("T12) The Hammer Falls",T110);
 	BW->printf("no special handler for this map, use general one.");
 	mh=new T00;
 }
