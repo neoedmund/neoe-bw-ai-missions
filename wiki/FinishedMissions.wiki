@@ -13,7 +13,7 @@
 ||  7. ||  Terran mission 7: ||  The Trump Card                          || assistant by T00 || ||
 ||  8. ||  Terran mission 8: ||  The Big Push                            || assistant by T00 || ||
 ||  9. ||  Terran mission 9: ||  New Gettysberg                          || assistant by T00 || ||
-|| 10. ||  Terran mission 10: ||  The Hammer Falls                       || assistant by T00(only mining department)  || T110 ||
+|| 10. ||  Terran mission 10: ||  The Hammer Falls                       || assistant by T00(only mining department)  || [T110] ||
 || || || Zerg Campaign:   Episode II        || || ||
 ||   1. ||  Zerg mission 1: ||  Among the Ruins                            || || ||
 ||   2. ||  Zerg mission 2: ||  Egression                                  || || ||
